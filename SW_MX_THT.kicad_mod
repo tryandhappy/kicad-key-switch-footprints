@@ -1,6 +1,6 @@
 (footprint "SW_MX_THT" (version 20221018) (generator pcbnew)
   (layer "F.Cu")
-  (descr "Cherry MX style mechanical keyboard switch, through-hole soldering, single-sided mounting.")
+  (descr "Cherry MX style mechanical keyboard switch, through-hole soldering, single-sided mounting. Plate cut lines: User.1=15.60mm square (cosmetic cover, all switches), User.2=14.00mm square (MX / MX Low Profile / Gateron Low Profile).")
   (tags "switch")
   (attr through_hole)
   (fp_text reference "REF**" (at -0.007836 -8.5 unlocked) (layer "F.SilkS") hide
@@ -57,4 +57,8 @@
   (pad "" np_thru_hole circle (at 5.08 0 180) (size 1.7 1.7) (drill 1.7) (layers "*.Mask") (tstamp 3019c847-3ccf-490a-9dd6-694227c3fba5))
   (pad "1" thru_hole circle (at 3.81 2.54 180) (size 2.5 2.5) (drill 1.5) (layers "*.Cu" "*.Mask") (tstamp 0de7d0e7-c8d5-482b-8e8a-d56acfc6ebd8))
   (pad "2" thru_hole circle (at -2.54 5.08 180) (size 2.5 2.5) (drill 1.5) (layers "*.Cu" "*.Mask") (tstamp 7b58219a-a31d-4ba4-804a-77c6d706d8bc))
+  (fp_rect (start -7.800 -7.800) (end 7.800 7.800)
+    (stroke (width 0.05) (type solid)) (fill none) (layer "User.1") (tstamp fb0f9426-4986-433c-97e4-d60871ee730d))
+  (fp_rect (start -7.000 -7.000) (end 7.000 7.000)
+    (stroke (width 0.05) (type solid)) (fill none) (layer "User.2") (tstamp e7ea6ae7-e778-458b-b5fd-419c880fc898))
 )

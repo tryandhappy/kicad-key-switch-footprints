@@ -1,6 +1,6 @@
 (footprint "SW_Kailh_Choc_V1_THT_alt1" (version 20221018) (generator pcbnew)
   (layer "F.Cu")
-  (descr "Kailh Choc V1 (PG1350) low profile mechanical keyboard switch, through-hole soldering, single-sided mounting. An alternative to \"SW_Kailh_Choc_V1_THT\" with additional fix pin.")
+  (descr "Kailh Choc V1 (PG1350) low profile mechanical keyboard switch, through-hole soldering, single-sided mounting. An alternative to \"SW_Kailh_Choc_V1_THT\" with additional fix pin. Plate cut lines: User.1=15.60mm square (cosmetic cover, all switches), User.4=13.80mm square (Kailh Choc V1).")
   (tags "switch, low_profile")
   (attr through_hole)
   (fp_text reference "REF**" (at 0 -8.5 unlocked) (layer "F.SilkS") hide
@@ -75,4 +75,8 @@
       fc12dcf8-ab20-48d4-b5c2-13ab518a5db5
     )
   )
+  (fp_rect (start -7.800 -7.800) (end 7.800 7.800)
+    (stroke (width 0.05) (type solid)) (fill none) (layer "User.1") (tstamp 63ff4457-f381-4d81-98fb-8f9a75923da2))
+  (fp_rect (start -6.900 -6.900) (end 6.900 6.900)
+    (stroke (width 0.05) (type solid)) (fill none) (layer "User.4") (tstamp eae8b990-3caa-40c8-ba4c-a0cae5e33899))
 )

@@ -1,6 +1,6 @@
 (footprint "SW_Gateron_LowProfile_HotSwap_PTH" (version 20221018) (generator pcbnew)
   (layer "F.Cu")
-  (descr "Gateron Low Profile (KS-27 & KS-33) style mechanical keyboard switch, Gateron Low Profile hot-swap socket and through-hole soldering, the hole of the socket is plated, single-sided mounting. Gateron Low Profile and Cherry MX Low Profile are NOT compatible.")
+  (descr "Gateron Low Profile (KS-27 & KS-33) style mechanical keyboard switch, Gateron Low Profile hot-swap socket and through-hole soldering, the hole of the socket is plated, single-sided mounting. Gateron Low Profile and Cherry MX Low Profile are NOT compatible. Plate cut lines: User.1=15.60mm square (cosmetic cover, all switches), User.2=14.00mm square (MX / MX Low Profile / Gateron Low Profile).")
   (tags "switch, low_profile, hot_swap")
   (fp_text reference "REF**" (at 0 -8.5 unlocked) (layer "F.SilkS") hide
       (effects (font (size 1 1) (thickness 0.15)))
@@ -145,4 +145,8 @@
       f02b6283-9eb1-4425-a348-288bc50a88d8
     )
   )
+  (fp_rect (start -7.800 -7.800) (end 7.800 7.800)
+    (stroke (width 0.05) (type solid)) (fill none) (layer "User.1") (tstamp a3804829-f477-47b0-a079-5510356a3aa0))
+  (fp_rect (start -7.000 -7.000) (end 7.000 7.000)
+    (stroke (width 0.05) (type solid)) (fill none) (layer "User.2") (tstamp ceb52b93-b97e-4449-b340-8f0e59beabf1))
 )

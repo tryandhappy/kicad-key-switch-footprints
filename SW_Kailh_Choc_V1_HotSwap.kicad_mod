@@ -1,6 +1,6 @@
 (footprint "SW_Kailh_Choc_V1_HotSwap" (version 20221018) (generator pcbnew)
   (layer "F.Cu")
-  (descr "Kailh Choc V1 (PG1350) low profile mechanical keyboard switch, hot-swap socket, single-sided mounting.")
+  (descr "Kailh Choc V1 (PG1350) low profile mechanical keyboard switch, hot-swap socket, single-sided mounting. Plate cut lines: User.1=15.60mm square (cosmetic cover, all switches), User.4=13.80mm square (Kailh Choc V1).")
   (tags "switch, low_profile, hot_swap")
   (attr smd)
   (fp_text reference "REF**" (at 0 -8.5 unlocked) (layer "F.SilkS") hide
@@ -106,4 +106,8 @@
       fc12dcf8-ab20-48d4-b5c2-13ab518a5db5
     )
   )
+  (fp_rect (start -7.800 -7.800) (end 7.800 7.800)
+    (stroke (width 0.05) (type solid)) (fill none) (layer "User.1") (tstamp c37e6149-bb73-47e9-82c2-beaba3c1d233))
+  (fp_rect (start -6.900 -6.900) (end 6.900 6.900)
+    (stroke (width 0.05) (type solid)) (fill none) (layer "User.4") (tstamp 3ac5896a-4d4e-4137-9981-c9b6b923caff))
 )

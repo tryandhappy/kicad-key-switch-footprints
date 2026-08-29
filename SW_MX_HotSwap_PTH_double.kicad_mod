@@ -1,6 +1,6 @@
 (footprint "SW_MX_HotSwap_PTH_double" (version 20221018) (generator pcbnew)
   (layer "F.Cu")
-  (descr "Cherry MX style mechanical keyboard switch, through-hole soldering and Kailh/Gateron hot-swap socket, the hole of the socket is plated, double-sided mounting.")
+  (descr "Cherry MX style mechanical keyboard switch, through-hole soldering and Kailh/Gateron hot-swap socket, the hole of the socket is plated, double-sided mounting. Plate cut lines: User.1=15.60mm square (cosmetic cover, all switches), User.2=14.00mm square (MX / MX Low Profile / Gateron Low Profile).")
   (tags "switch, hot_swap")
   (fp_text reference "REF**" (at 0 -8.5 unlocked) (layer "F.SilkS") hide
       (effects (font (size 1 1) (thickness 0.15)))
@@ -248,4 +248,8 @@
       e33c290b-0cb1-4926-a86c-e9d7e6bbbd3c
     )
   )
+  (fp_rect (start -7.800 -7.800) (end 7.800 7.800)
+    (stroke (width 0.05) (type solid)) (fill none) (layer "User.1") (tstamp 9eba2422-e331-463e-9080-a736345be48b))
+  (fp_rect (start -7.000 -7.000) (end 7.000 7.000)
+    (stroke (width 0.05) (type solid)) (fill none) (layer "User.2") (tstamp 2eaf698f-2adc-4153-87f9-f8cc61db2ff5))
 )

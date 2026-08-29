@@ -1,6 +1,6 @@
 (footprint "SW_MX_LowProfile_THT_nSilk" (version 20221018) (generator pcbnew)
   (layer "F.Cu")
-  (descr "Cherry MX Low Profile mechanical keyboard switch, through-hole soldering, single-sided mounting.")
+  (descr "Cherry MX Low Profile mechanical keyboard switch, through-hole soldering, single-sided mounting. Plate cut lines: User.1=15.60mm square (cosmetic cover, all switches), User.2=14.00mm square (MX / MX Low Profile / Gateron Low Profile).")
   (tags "switch, low_profile")
   (attr through_hole)
   (fp_text reference "REF**" (at 0 -8.5 unlocked) (layer "F.SilkS") hide
@@ -51,4 +51,8 @@
       91e0e0c0-e65a-4908-8a56-bed869355c1e
     )
   )
+  (fp_rect (start -7.800 -7.800) (end 7.800 7.800)
+    (stroke (width 0.05) (type solid)) (fill none) (layer "User.1") (tstamp 04abf76a-37ae-4665-ab25-32c2f2ddaaf7))
+  (fp_rect (start -7.000 -7.000) (end 7.000 7.000)
+    (stroke (width 0.05) (type solid)) (fill none) (layer "User.2") (tstamp fbb8dfd6-7400-4d01-92e0-a3d7a94e4718))
 )
