@@ -1,7 +1,5 @@
 # Key Switches
 
-[:globe_with_meridians:中文](/readme_zh-TW.md)
-
 This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboard switches, released under the [CERN-OHL-P v2](/LICENSE).
 
 ## ★ このフォーク限定: プレートのカット線（上流には無い。2026-08-29）
@@ -70,6 +68,15 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
 - **検証**: KiCad 10.0.5 の `kicad-cli fp export svg` で 606 ファイル全部のパースを
   確認済み。コートヤード寸法・スタビ穴座標はスクリプトで機械チェック済み。
   プレビュー画像はベース 33 のみ（バリアントは枚数が膨大なため生成しない）
+
+## ★ このフォークの利用
+
+このフォークを submodule として使う場合は上流ではなくこちらの URL を指定する
+（次節「Usage」の URL は上流のまま）:
+
+```
+git submodule add https://github.com/tryandhappy/kicad-key-switch-footprints.git
+```
 
 以下は上流（siderakb/key-switches.pretty）の README のまま。
 
