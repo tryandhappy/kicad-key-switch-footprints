@@ -10,9 +10,13 @@
   再生成は `python3 scripts/generate_variants.py`(全削除→再生成。手編集禁止、直すのはスクリプト側)
   - コートヤード = キーキャップ範囲。外縁は公称(w×19.05×19.05)より各辺0.025mm控え
     (1u なら中心線±9.475・線幅0.05で外縁19.00mm角)。19.05mmピッチの隣接キーと誤DRCしないため
-  - `_PCBStab` = Cherry MX PCBマウントスタビのNPTH穴付き(MX系ベースのみ。寸法はkiswitch準拠、
-    詳細はREADMEのフォーク限定節)。プレートマウントスタビはサフィックス無し版で対応(PCB側に要素不要)
+  - `_PCBStab` = Cherry MX PCBマウントスタビのNPTH穴付き(MX系ベースのみ。ステム間隔はkiswitch、
+    穴y座標(小−6.985/大+8.255=15.24mm間隔)と4.5uはmarbastlib準拠、詳細はREADMEのフォーク限定節)。
+    MXのプレートマウントスタビはサフィックス無し版で対応(PCB側に要素不要)
+  - `_ChocStab` = Kailh Choc 1350スタビ用(Choc系ベース×2.00u/6.25uのみ)。丸穴ではなく
+    **Edge.Cutsの角丸スロット4個**+プレートカット線をUser.5に持つ(形状はmarbastlib STAB_choc_*準拠)
 - **User.1〜User.4**: プレートカット線(User.1=15.60 化粧カバー / User.2=14.00 MX系 / User.3=13.95 Choc V2 / User.4=13.80 Choc V1)
+- **User.5**: Chocスタビ用プレートカット線(`_ChocStab` バリアントのみ)
 - 各ファイルの `descr` にレイヤ⇄用途の対応を記載する
 - `.kicad_mod` は新旧2書式が混在(旧: 20221018/tstamp/fp_text value が29ファイル、新: 20241229/uuid/property "Value" が4ファイル)。一括処理は正規表現の1行前提を避け、括弧対応カウントでブロック抽出する
 

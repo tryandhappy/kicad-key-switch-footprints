@@ -38,7 +38,7 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
 ## ★ このフォーク限定: キーキャップサイズバリアント `variants.pretty/`（2026-08-30）
 
 **リポジトリ直下の 33 ベースフットプリントから、キーキャップサイズ別の
-バリアント（606 ファイル）を `variants.pretty/`（別ライブラリとして登録する）に
+バリアント（658 ファイル）を `variants.pretty/`（別ライブラリとして登録する）に
 自動生成してある。** 再生成は `python3 scripts/generate_variants.py`。
 
 - **ベース（直下 33 ファイル）= キーキャップなし**。コートヤードはスイッチ単体の
@@ -51,21 +51,30 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
   `1.00u` `1.25u` `1.50u` `1.75u` `2.00u` `2.25u` `2.75u` `3.00u` `4.50u`
   `6.00u` `6.25u` `6.50u` `7.00u` `ISOEnter`
 - **スタビライザー**（2u 以上と ISO Enter）:
-  - **プレートマウント用 → サフィックス無し版**をそのまま使う（PCB 側に要素不要。
-    Kailh Choc / Gateron Low Profile のスタビはプレートマウント規格のみなので常にこちら）
+  - **サフィックス無し版 = スタビ用の PCB 要素なし**。MX のプレートマウントスタビは
+    そのまま使える
   - **Cherry MX PCB マウント用 → `_PCBStab` 版**（MX 系ベース 18 種のみ）。
-    NPTH 小穴 Ø3.048（y=−6.985）+ 大穴 Ø3.9878（y=+8.225）、ステム位置は
-    2u系=±11.938 / 3u=±19.05 / 6u=±47.625 / 6.25u=±50 / 7u=±57.15mm。
-    ISO Enter は縦 2u スタビ（90° 回転、大穴＝ワイヤー側が x=−8.225 の左側。
+    NPTH 小穴 Ø3.048（y=−6.985）+ 大穴 Ø3.9878（y=+8.255。小穴と 15.24mm 間隔）、
+    ステム位置は 2u系=±11.938 / 3u=±19.05 / 4.5u=±33.3375 / 6u=±47.625 /
+    6.25u=±50 / 7u=±57.15mm。
+    ISO Enter は縦 2u スタビ（90° 回転、大穴＝ワイヤー側が x=−8.255 の左側。
     逆向きに実装する場合は基板側でフットプリントを 180° 回転）
-  - **4.50u / 6.50u は PCB マウントスタビの標準規格が無い**（kiswitch にも無い）ため
-    `_PCBStab` 版は生成していない
+  - **Kailh Choc 1350 スタビ用 → `_ChocStab` 版**（Choc 系ベース 17 種 ×
+    2.00u / 6.25u のみ = Kailh が製造しているサイズ）。丸穴ではなく
+    **PCB の角丸スロット切り欠き 4 個（`Edge.Cuts`）+ プレート必須**という方式。
+    本体スロット 5.3×5.5mm + ワイヤースロット 4.0×3.5mm（角 R0.5）、
+    ステム位置 2u=±12.0 / 6.25u=±38.0mm。スタビ用プレートカット線は `User.5`
+  - **6.50u は PCB マウントスタビの標準規格が無い**（kiswitch / marbastlib にも無い）
+    ため `_PCBStab` 版は生成していない
 - **寸法出典**: [kiswitch](https://github.com/kiswitch/kiswitch)
-  （`KiSwitch/switch.py` StabilizerCherryMX / `keycap.py`）。
-  ISO Enter の外形（上段 1.5u + 下段 1.25u 右端揃え、スイッチは下段列の中心）も同準拠
+  （`KiSwitch/switch.py` StabilizerCherryMX のステム間隔 / `keycap.py`）と
+  [marbastlib](https://github.com/ebastler/marbastlib)（CERN-OHL-P v2。
+  `STAB_MX_*` の穴 y 座標・4.5u、`STAB_choc_*` の Choc スロット形状）。
+  ISO Enter の外形（上段 1.5u + 下段 1.25u 右端揃え、スイッチは下段列の中心）は
+  kiswitch 準拠
 - **注意**: キーキャップ範囲のコートヤードは、キャップ下に置くダイオード等も
   DRC エラーにする。物理的に問題ない配置は KiCad 側で除外指定するか、ベース版を使う
-- **検証**: KiCad 10.0.5 の `kicad-cli fp export svg` で 606 ファイル全部のパースを
+- **検証**: KiCad 10.0.5 の `kicad-cli fp export svg` で 658 ファイル全部のパースを
   確認済み。コートヤード寸法・スタビ穴座標はスクリプトで機械チェック済み。
   プレビュー画像はベース 33 のみ（バリアントは枚数が膨大なため生成しない）
 
