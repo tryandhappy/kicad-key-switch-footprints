@@ -12,7 +12,8 @@ variants-mx-choc.pretty(MX×Choc ハイブリッド) / variants-gateron.pretty(G
    19.05mm ピッチで隣接キー同士が誤 DRC エラーにならないため)
 - 2u 以上は Cherry MX PCB マウントスタビ穴付きの `_MXPCBStab` 版も生成
   (MX 系ベースのみ。MX のプレートマウントスタビは PCB 側に要素不要なので
-   プレーン版がそのまま対応)
+   プレーン版がそのまま対応。スタビ用プレートカット線は User.5 に持ち、
+   プレートマウント・PCB マウント両対応の Cherry スタイル)
 - Choc V1 対応ベースには Kailh Choc 1350(V1)スタビ用の `_ChocV1Stab` 版も生成
   (2u / 6.25u のみ = Kailh が製造しているサイズ。PCB は丸穴ではなく
    角丸スロット 4 個の切り欠き(Edge.Cuts)+ プレート必須。
@@ -20,12 +21,14 @@ variants-mx-choc.pretty(MX×Choc ハイブリッド) / variants-gateron.pretty(G
 - Choc V2 / Gateron KS-33 対応ベースには Kailh Choc V2 スタビ
   (CPG1353G24D01)用の `_ChocV2Stab` 版も生成
   (2u のみ確認。PCB は矩形スロット 2 個の切り欠き(Edge.Cuts)+ プレート必須。
-   プレートカット寸法は Keebio Plate Generator 参照、当リポジトリには線なし)
+   プレートカット線は User.5)
 - 寸法出典: kiswitch (https://github.com/kiswitch/kiswitch) KiSwitch/switch.py,
   keycap.py、marbastlib (https://github.com/ebastler/marbastlib,
-  CERN-OHL-P v2) STAB_MX_*.kicad_mod / STAB_choc_*.kicad_mod、および
+  CERN-OHL-P v2) STAB_MX_*.kicad_mod / STAB_choc_*.kicad_mod、
   Keebio-Parts.pretty (https://github.com/keebio/Keebio-Parts.pretty, MIT)
-  Kailh-Choc-V2-2u-Stabilizer-CPG1353G24D01-Cutout.kicad_mod
+  Kailh-Choc-V2-2u-Stabilizer-CPG1353G24D01-Cutout.kicad_mod、および
+  kb-plategen (https://github.com/keebio/kb-plategen, MIT)
+  src/maker_models/StabilizerCutout.ts (MX/Choc V2 のプレートカット寸法)
 
 実行: python3 scripts/generate_variants.py
 """
@@ -84,6 +87,15 @@ CHOC_STAB_BASE_X = 12.0
 # Kailh-Choc-V2-2u-Stabilizer-CPG1353G24D01-Cutout.kicad_mod
 CHOC_V2_STAB_X = {2.0: 12.0}       # スロット中心 x = ±12.0。Kailh 製造は 2u のみ確認
 CHOC_V2_STAB_HALF = (3.25, 4.75)   # スロット半幅/半高 → 6.5 x 9.5mm
+
+# スタビ用プレートカット線 (User.5)。寸法は Keebio kb-plategen (MIT)
+# src/maker_models/StabilizerCutout.ts 準拠 (同ソースは y 上向きなので反転)。
+# MX = "Normal" カット。プレートマウント・PCB マウント両対応の Cherry スタイル
+MX_PLATE_CUT = (6.75, 14.0, 1.0)   # (幅, 高さ, 中心y)。ステム位置は STAB_X_OFFSET
+# Choc V2 = 本体+突出+ワイヤー溝の角丸矩形 3 種(角R0.5)。外形は互いに重なる
+# (kb-plategen も union して出力している)ので、プレート CAD 側で union する
+CHOC_V2_PLATE_PARTS = [(5.95, 7.95, 0.3441), (4.55, 6.25, 6.7559)]  # (幅,高さ,中心y)
+CHOC_V2_PLATE_WIRE = (1.4, 8.2809)  # ワイヤー溝 (高さ, 中心y)。幅はステム間隔
 # (kind, layer, width, coords) kind: line=(x1,y1,x2,y2) / arc=(sx,sy,mx,my,ex,ey)
 CHOC_STAB_SEGMENTS = [
     # --- PCB スロット (Edge.Cuts): 本体 5.3x5.5 / ワイヤー 4.0x3.5, 角 R0.5
@@ -206,6 +218,69 @@ def choc_stab_items(size):
                     f' (stroke (width {width}) (type solid))'
                     f' (layer "{layer}") (tstamp {new_uuid()}))'
                 )
+    return items
+
+
+def rounded_rect_items(cx, cy, w, h, layer, lw, r=0.5):
+    """角丸矩形の外形線(4辺+4円弧、旧書式1行スタイル)を返す。"""
+    x1, x2 = cx - w / 2, cx + w / 2
+    y1, y2 = cy - h / 2, cy + h / 2
+    d = r * (1 - 2 ** 0.5 / 2)   # 角の円弧の中点オフセット
+    segs = [
+        ("line", (x1 + r, y1, x2 - r, y1)),
+        ("line", (x2, y1 + r, x2, y2 - r)),
+        ("line", (x2 - r, y2, x1 + r, y2)),
+        ("line", (x1, y2 - r, x1, y1 + r)),
+        ("arc", (x2 - r, y1, x2 - d, y1 + d, x2, y1 + r)),
+        ("arc", (x2, y2 - r, x2 - d, y2 - d, x2 - r, y2)),
+        ("arc", (x1 + r, y2, x1 + d, y2 - d, x1, y2 - r)),
+        ("arc", (x1, y1 + r, x1 + d, y1 + d, x1 + r, y1)),
+    ]
+    items = []
+    for kind, coords in segs:
+        p = [round(v, 6) for v in coords]
+        if kind == "line":
+            items.append(
+                f'(fp_line (start {p[0]} {p[1]}) (end {p[2]} {p[3]})'
+                f' (stroke (width {lw}) (type solid))'
+                f' (layer "{layer}") (tstamp {new_uuid()}))'
+            )
+        else:
+            items.append(
+                f'(fp_arc (start {p[0]} {p[1]}) (mid {p[2]} {p[3]}) (end {p[4]} {p[5]})'
+                f' (stroke (width {lw}) (type solid))'
+                f' (layer "{layer}") (tstamp {new_uuid()}))'
+            )
+    return items
+
+
+def mx_plate_cut_items(size):
+    """Cherry MX スタビ用プレートカット線(User.5)を返す。ISO Enter は 90°回転。"""
+    w, h, cy = MX_PLATE_CUT
+    items = []
+    if size == "ISOEnter":
+        # 縦 2u スタビ。stab_holes と同じ回転: (x,y) -> (-y, x)
+        for y in (-STAB_X_OFFSET[2.0], STAB_X_OFFSET[2.0]):
+            items += rounded_rect_items(-cy, y, h, w, "User.5", 0.05)
+    else:
+        for x in (-STAB_X_OFFSET[size], STAB_X_OFFSET[size]):
+            items += rounded_rect_items(x, cy, w, h, "User.5", 0.05)
+    return items
+
+
+def choc_v2_plate_items(size):
+    """Kailh Choc V2 スタビ用プレートカット線(User.5)を返す。
+
+    kb-plategen の 3 プリミティブ(本体・突出・ワイヤー溝)をそのまま描く。
+    外形は互いに重なるため、プレート CAD 側で union して使う。
+    """
+    x = CHOC_V2_STAB_X[size]
+    items = []
+    for mirror in (1, -1):
+        for w, h, cy in CHOC_V2_PLATE_PARTS:
+            items += rounded_rect_items(mirror * x, cy, w, h, "User.5", 0.05)
+    wh, wy = CHOC_V2_PLATE_WIRE
+    items += rounded_rect_items(0, wy, 2 * x, wh, "User.5", 0.05)
     return items
 
 
@@ -334,13 +409,13 @@ def make_variant(base_text, base_name, suffix, size, stab):
     if stab == "mx":
         holes = stab_holes(size)
         check_stab_clearance(name, s, holes)
-        inserts += holes
+        inserts += holes + mx_plate_cut_items(size)
     elif stab == "choc":
         check_slot_clearance(name, s, choc_stab_slot_rects(size))
         inserts += choc_stab_items(size)
     elif stab == "chocv2":
         check_slot_clearance(name, s, choc_v2_stab_slot_rects(size))
-        inserts += choc_v2_stab_items(size)
+        inserts += choc_v2_stab_items(size) + choc_v2_plate_items(size)
 
     # ファイル末尾の閉じ括弧の直前に挿入
     tail = s.rstrip()
@@ -361,14 +436,17 @@ def make_variant(base_text, base_name, suffix, size, stab):
                     " (vertical 2u, wire side at x=-8.255).")
         else:
             cap += " Cherry MX PCB-mount stabilizer holes included."
+        cap += (" Stabilizer plate cut on User.5"
+                " (fits plate-mount and PCB-mount MX stabilizers).")
     elif stab == "choc":
         cap += (" Kailh Choc 1350 stabilizer: PCB cutout slots (Edge.Cuts)"
                 " and plate cuts on User.5. Plate required."
                 " For Choc V1 switches only (wire interferes with Choc V2).")
     elif stab == "chocv2":
         cap += (" Kailh Choc V2 stabilizer (CPG1353G24D01): PCB cutout slots"
-                " (Edge.Cuts). Plate required; plate cutout per Keebio plate"
-                " generator. For Choc V2 / Gateron KS-33 only (not Choc V1).")
+                " (Edge.Cuts) and plate cuts on User.5 (overlapping outlines;"
+                " union in plate CAD). Plate required."
+                " For Choc V2 / Gateron KS-33 only (not Choc V1).")
     elif size == "ISOEnter" or (isinstance(size, float) and size >= STAB_MIN_SIZE):
         cap += " No stabilizer PCB features."
         if "MX" in base_name:

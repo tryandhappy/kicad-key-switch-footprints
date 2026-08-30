@@ -60,7 +60,11 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
     ステム位置は 2u系=±11.938 / 3u=±19.05 / 4.5u=±33.3375 / 6u=±47.625 /
     6.25u=±50 / 7u=±57.15mm。
     ISO Enter は縦 2u スタビ（90° 回転、大穴＝ワイヤー側が x=−8.255 の左側。
-    逆向きに実装する場合は基板側でフットプリントを 180° 回転）
+    逆向きに実装する場合は基板側でフットプリントを 180° 回転）。
+    **スタビ用プレートカット線は `User.5`**（6.75×14mm 角丸、中心 y=+1.0、
+    kb-plategen "Normal" 準拠。プレートマウント・PCB マウント両対応の
+    Cherry スタイルなので、プレートマウントスタビで組む場合も
+    `_MXPCBStab` 版を使えばカット線が得られる。NPTH 穴は未使用でも無害）
   - **Kailh Choc 1350（V1）スタビ用 → `_ChocV1Stab` 版**（Choc V1 対応ベース 15 種 ×
     2.00u / 6.25u のみ = Kailh が製造しているサイズ）。丸穴ではなく
     **PCB の角丸スロット切り欠き 4 個（`Edge.Cuts`）+ プレート必須**という方式。
@@ -72,8 +76,9 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
     Kailh の製造を確認できたサイズ）。対応スイッチは **Choc V2 / Gateron KS-33**
     で、**Choc V1 とは非互換**（Keebio 商品ページ準拠）。
     **PCB の矩形スロット切り欠き 2 個（`Edge.Cuts`、6.5×9.5mm、中心 x=±12.0）+
-    プレート必須**。プレートカット寸法は Keebio Plate Generator を参照
-    （当リポジトリにプレートカット線は無い）。
+    プレート必須**。スタビ用プレートカット線は `User.5`（本体 5.95×7.95 +
+    突出 4.55×6.25 + ワイヤー溝 全幅×1.4mm、角 R0.5、kb-plategen 準拠。
+    3 種の角丸矩形は互いに重なるのでプレート CAD 側で union する）。
     ホットスワップ系ベースはソケットパッドがスロットと物理干渉するため
     生成対象外（THT 系 6 種のみ。生成スクリプトの干渉チェックで自動判定）
   - **6.50u は PCB マウントスタビの標準規格が無い**（kiswitch / marbastlib にも無い）
@@ -97,14 +102,17 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
   Choc スロットが幾何的に共存できない）。Choc 側の可能性を残したい場合は
   `_ChocV1Stab` / `_ChocV2Stab` を選ぶ（MX で組むときはプレートマウント MX スタビが
   併用可能。`_MXPCBStab` を選ぶと Choc ビルドでのスタビ手段が無くなる）
-- MX スタビ用のプレート開口（Cherry 仕様カット）線は現状未提供。プレート
-  マウント・PCB マウントとも Cherry スタイルのカットが必要になる点に注意
+- MX スタビ用のプレート開口線は `_MXPCBStab` 版の `User.5` にある（Cherry
+  スタイル = プレートマウント・PCB マウント両対応）。プレートマウントスタビで
+  組む場合もカット線目的で `_MXPCBStab` 版を使ってよい（NPTH 穴は無害）
 - **寸法出典**: [kiswitch](https://github.com/kiswitch/kiswitch)
   （`KiSwitch/switch.py` StabilizerCherryMX のステム間隔 / `keycap.py`）と
   [marbastlib](https://github.com/ebastler/marbastlib)（CERN-OHL-P v2。
   `STAB_MX_*` の穴 y 座標・4.5u、`STAB_choc_*` の Choc V1 スロット形状）と
   [Keebio-Parts.pretty](https://github.com/keebio/Keebio-Parts.pretty)（MIT。
-  `Kailh-Choc-V2-2u-Stabilizer-CPG1353G24D01-Cutout` の Choc V2 スロット形状）。
+  `Kailh-Choc-V2-2u-Stabilizer-CPG1353G24D01-Cutout` の Choc V2 スロット形状）と
+  [kb-plategen](https://github.com/keebio/kb-plategen)（MIT。
+  `StabilizerCutout.ts` の MX / Choc V2 スタビ用プレートカット寸法）。
   ISO Enter の外形（上段 1.5u + 下段 1.25u 右端揃え、スイッチは下段列の中心）は
   kiswitch 準拠
 - **注意**: キーキャップ範囲のコートヤードは、キャップ下に置くダイオード等も
