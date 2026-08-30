@@ -10,13 +10,19 @@ variants.pretty/ にキーキャップサイズ別のフットプリントを生
 - 2u 以上は Cherry MX PCB マウントスタビ穴付きの `_MXPCBStab` 版も生成
   (MX 系ベースのみ。MX のプレートマウントスタビは PCB 側に要素不要なので
    プレーン版がそのまま対応)
-- Choc 系ベースには Kailh Choc 1350 スタビ用の `_ChocStab` 版も生成
+- Choc V1 対応ベースには Kailh Choc 1350(V1)スタビ用の `_ChocStab` 版も生成
   (2u / 6.25u のみ = Kailh が製造しているサイズ。PCB は丸穴ではなく
    角丸スロット 4 個の切り欠き(Edge.Cuts)+ プレート必須。
-   プレートカット線は User.5)
+   プレートカット線は User.5。Choc V1 スイッチ専用で V2 とは非互換)
+- Choc V2 / Gateron KS-33 対応ベースには Kailh Choc V2 スタビ
+  (CPG1353G24D01)用の `_ChocV2Stab` 版も生成
+  (2u のみ確認。PCB は矩形スロット 2 個の切り欠き(Edge.Cuts)+ プレート必須。
+   プレートカット寸法は Keebio Plate Generator 参照、当リポジトリには線なし)
 - 寸法出典: kiswitch (https://github.com/kiswitch/kiswitch) KiSwitch/switch.py,
-  keycap.py および marbastlib (https://github.com/ebastler/marbastlib,
-  CERN-OHL-P v2) STAB_MX_*.kicad_mod / STAB_choc_*.kicad_mod
+  keycap.py、marbastlib (https://github.com/ebastler/marbastlib,
+  CERN-OHL-P v2) STAB_MX_*.kicad_mod / STAB_choc_*.kicad_mod、および
+  Keebio-Parts.pretty (https://github.com/keebio/Keebio-Parts.pretty, MIT)
+  Kailh-Choc-V2-2u-Stabilizer-CPG1353G24D01-Cutout.kicad_mod
 
 実行: python3 scripts/generate_variants.py
 """
@@ -54,6 +60,15 @@ STAB_LARGE = (3.9878, 8.255)   # (穴径, y) 下側の大穴(ワイヤー側)。
 # 他サイズはステム中心の差分だけ各座標を外側へシフトして生成する。
 CHOC_STAB_X = {2.0: 12.0, 6.25: 38.0}   # Kailh はこの 2 サイズのみ製造
 CHOC_STAB_BASE_X = 12.0
+
+# Kailh Choc V2 スタビ (CPG1353G24D01)。Choc V2 / Gateron KS-33 用で V1 とは非互換
+# (Keebio 商品ページより。1350 スタビのワイヤーは V2 ハウジングと干渉する)。
+# プレートマウント + PCB 矩形スロット 2 個(Edge.Cuts、角丸なし)。プレートカット
+# 寸法は Keebio Plate Generator 参照(当リポジトリにはプレートカット線なし)。
+# 形状出典: Keebio-Parts.pretty (MIT)
+# Kailh-Choc-V2-2u-Stabilizer-CPG1353G24D01-Cutout.kicad_mod
+CHOC_V2_STAB_X = {2.0: 12.0}       # スロット中心 x = ±12.0。Kailh 製造は 2u のみ確認
+CHOC_V2_STAB_HALF = (3.25, 4.75)   # スロット半幅/半高 → 6.5 x 9.5mm
 # (kind, layer, width, coords) kind: line=(x1,y1,x2,y2) / arc=(sx,sy,mx,my,ex,ey)
 CHOC_STAB_SEGMENTS = [
     # --- PCB スロット (Edge.Cuts): 本体 5.3x5.5 / ワイヤー 4.0x3.5, 角 R0.5
@@ -179,6 +194,27 @@ def choc_stab_items(size):
     return items
 
 
+def choc_v2_stab_items(size):
+    """Kailh Choc V2 スタビの PCB スロット(fp_rect, Edge.Cuts)を返す。"""
+    hw, hh = CHOC_V2_STAB_HALF
+    items = []
+    for mirror in (1, -1):
+        cx = mirror * CHOC_V2_STAB_X[size]
+        items.append(
+            f'(fp_rect (start {round(cx - hw, 6)} {-hh}) (end {round(cx + hw, 6)} {hh})'
+            f' (stroke (width 0.12) (type solid)) (fill none)'
+            f' (layer "Edge.Cuts") (tstamp {new_uuid()}))'
+        )
+    return items
+
+
+def choc_v2_stab_slot_rects(size):
+    """Choc V2 スタビの PCB スロット矩形 (x1, y1, x2, y2) を返す(干渉チェック用)。"""
+    hw, hh = CHOC_V2_STAB_HALF
+    x = CHOC_V2_STAB_X[size]
+    return [(m * x - hw, -hh, m * x + hw, hh) for m in (1, -1)]
+
+
 def choc_stab_slot_rects(size):
     """Choc スタビの PCB スロットの外接矩形 (x1, y1, x2, y2) を返す(干渉チェック用)。"""
     x = CHOC_STAB_X[size]
@@ -234,9 +270,22 @@ def check_stab_clearance(base_name, s, items):
                       f"({px},{py})の間隔が {dist - hd / 2 - pr:.2f}mm")
 
 
-def check_choc_slot_clearance(base_name, s, size):
+def slot_collides(s, rects, margin=0.2):
+    """スロット矩形と既存パッドの干渉があれば (パッド座標, 間隔) を返す。"""
     pads = existing_pads(s)
-    for x1, y1, x2, y2 in choc_stab_slot_rects(size):
+    for x1, y1, x2, y2 in rects:
+        for px, py, pr in pads:
+            dx = max(x1 - px, 0, px - x2)
+            dy = max(y1 - py, 0, py - y2)
+            dist = (dx ** 2 + dy ** 2) ** 0.5
+            if dist < pr + margin:
+                return (px, py), dist - pr
+    return None
+
+
+def check_slot_clearance(base_name, s, rects):
+    pads = existing_pads(s)
+    for x1, y1, x2, y2 in rects:
         for px, py, pr in pads:
             dx = max(x1 - px, 0, px - x2)
             dy = max(y1 - py, 0, py - y2)
@@ -247,7 +296,8 @@ def check_choc_slot_clearance(base_name, s, size):
 
 
 def make_variant(base_text, base_name, suffix, size, stab):
-    """stab: None(スタビ要素なし) / "mx"(Cherry MX PCB 穴) / "choc"(Choc スロット)"""
+    """stab: None(スタビ要素なし) / "mx"(Cherry MX PCB 穴) /
+    "choc"(Choc V1 スロット) / "chocv2"(Choc V2 スロット)"""
     name = f"{base_name}_{suffix}"
     s = base_text
 
@@ -271,8 +321,11 @@ def make_variant(base_text, base_name, suffix, size, stab):
         check_stab_clearance(name, s, holes)
         inserts += holes
     elif stab == "choc":
-        check_choc_slot_clearance(name, s, size)
+        check_slot_clearance(name, s, choc_stab_slot_rects(size))
         inserts += choc_stab_items(size)
+    elif stab == "chocv2":
+        check_slot_clearance(name, s, choc_v2_stab_slot_rects(size))
+        inserts += choc_v2_stab_items(size)
 
     # ファイル末尾の閉じ括弧の直前に挿入
     tail = s.rstrip()
@@ -295,13 +348,21 @@ def make_variant(base_text, base_name, suffix, size, stab):
             cap += " Cherry MX PCB-mount stabilizer holes included."
     elif stab == "choc":
         cap += (" Kailh Choc 1350 stabilizer: PCB cutout slots (Edge.Cuts)"
-                " and plate cuts on User.5. Plate required.")
+                " and plate cuts on User.5. Plate required."
+                " For Choc V1 switches only (wire interferes with Choc V2).")
+    elif stab == "chocv2":
+        cap += (" Kailh Choc V2 stabilizer (CPG1353G24D01): PCB cutout slots"
+                " (Edge.Cuts). Plate required; plate cutout per Keebio plate"
+                " generator. For Choc V2 / Gateron KS-33 only (not Choc V1).")
     elif size == "ISOEnter" or (isinstance(size, float) and size >= STAB_MIN_SIZE):
         cap += " No stabilizer PCB features."
         if "MX" in base_name:
             cap += " Plate-mount MX stabilizers can be used."
-        if "Choc" in base_name and size in CHOC_STAB_X:
-            cap += " For Kailh Choc 1350 stabilizers use the _ChocStab variant."
+        if "Choc_V1" in base_name and size in CHOC_STAB_X:
+            cap += " For Kailh Choc 1350 (V1) stabilizers use the _ChocStab variant."
+        if (("Choc_V2" in base_name or "V1V2" in base_name
+             or "Gateron" in base_name) and size in CHOC_V2_STAB_X):
+            cap += " For Kailh Choc V2 stabilizers use the _ChocV2Stab variant."
     m = re.search(r'\(descr "((?:\\.|[^"\\])*)"\)', s)
     assert m, base_name
     s = s[:m.start()] + f'(descr "{m.group(1)} {cap}")' + s[m.end():]
@@ -325,15 +386,26 @@ def main():
         base_name = base.stem
         base_text = base.read_text()
         is_mx = "MX" in base_name
-        is_choc = "Choc" in base_name
+        is_choc_v1 = "Choc_V1" in base_name   # Choc_V1 と Choc_V1V2 Hybrid
+        is_choc_v2 = "Choc_V2" in base_name or "V1V2" in base_name
+        is_gateron = "Gateron" in base_name   # KS-33 は Choc V2 スタビ対応(Keebio)
 
         variants = []
         for w in REGULAR_SIZES:
             variants.append((f"{w:.2f}u", w, None))
             if is_mx and w >= STAB_MIN_SIZE and w in STAB_X_OFFSET:
                 variants.append((f"{w:.2f}u_MXPCBStab", w, "mx"))
-            if is_choc and w in CHOC_STAB_X:
+            if is_choc_v1 and w in CHOC_STAB_X:
                 variants.append((f"{w:.2f}u_ChocStab", w, "choc"))
+            if (is_choc_v2 or is_gateron) and w in CHOC_V2_STAB_X:
+                # ホットスワップ系はソケットパッドが V2 スロットと物理干渉する
+                # ため生成しない(スロットがパッドを切り欠いてしまう)
+                hit = slot_collides(base_text, choc_v2_stab_slot_rects(w))
+                if hit:
+                    print(f"  SKIP {base_name}_{w:.2f}u_ChocV2Stab: "
+                          f"V2 スロットがパッド{hit[0]}と干渉({hit[1]:.2f}mm)")
+                else:
+                    variants.append((f"{w:.2f}u_ChocV2Stab", w, "chocv2"))
         variants.append(("ISOEnter", "ISOEnter", None))
         if is_mx:
             variants.append(("ISOEnter_MXPCBStab", "ISOEnter", "mx"))

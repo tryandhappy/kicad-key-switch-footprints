@@ -38,7 +38,7 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
 ## ★ このフォーク限定: キーキャップサイズバリアント `variants.pretty/`（2026-08-30）
 
 **リポジトリ直下の 33 ベースフットプリントから、キーキャップサイズ別の
-バリアント（658 ファイル）を `variants.pretty/`（別ライブラリとして登録する）に
+バリアント（660 ファイル）を `variants.pretty/`（別ライブラリとして登録する）に
 自動生成してある。** 再生成は `python3 scripts/generate_variants.py`。
 
 - **ベース（直下 33 ファイル）= キーキャップなし**。コートヤードはスイッチ単体の
@@ -59,22 +59,55 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
     6.25u=±50 / 7u=±57.15mm。
     ISO Enter は縦 2u スタビ（90° 回転、大穴＝ワイヤー側が x=−8.255 の左側。
     逆向きに実装する場合は基板側でフットプリントを 180° 回転）
-  - **Kailh Choc 1350 スタビ用 → `_ChocStab` 版**（Choc 系ベース 17 種 ×
+  - **Kailh Choc 1350（V1）スタビ用 → `_ChocStab` 版**（Choc V1 対応ベース 15 種 ×
     2.00u / 6.25u のみ = Kailh が製造しているサイズ）。丸穴ではなく
     **PCB の角丸スロット切り欠き 4 個（`Edge.Cuts`）+ プレート必須**という方式。
     本体スロット 5.3×5.5mm + ワイヤースロット 4.0×3.5mm（角 R0.5）、
-    ステム位置 2u=±12.0 / 6.25u=±38.0mm。スタビ用プレートカット線は `User.5`
+    ステム位置 2u=±12.0 / 6.25u=±38.0mm。スタビ用プレートカット線は `User.5`。
+    **Choc V1 スイッチ専用**。ワイヤーが Choc V2 のハウジングと干渉するため
+    V2 には使えない（V2 専用ベースには生成しない）
+  - **Kailh Choc V2 スタビ（CPG1353G24D01）用 → `_ChocV2Stab` 版**（2.00u のみ =
+    Kailh の製造を確認できたサイズ）。対応スイッチは **Choc V2 / Gateron KS-33**
+    で、**Choc V1 とは非互換**（Keebio 商品ページ準拠）。
+    **PCB の矩形スロット切り欠き 2 個（`Edge.Cuts`、6.5×9.5mm、中心 x=±12.0）+
+    プレート必須**。プレートカット寸法は Keebio Plate Generator を参照
+    （当リポジトリにプレートカット線は無い）。
+    ホットスワップ系ベースはソケットパッドがスロットと物理干渉するため
+    生成対象外（THT 系 6 種のみ。生成スクリプトの干渉チェックで自動判定）
   - **6.50u は PCB マウントスタビの標準規格が無い**（kiswitch / marbastlib にも無い）
     ため `_MXPCBStab` 版は生成していない
+
+### スイッチ × スタビライザー対応表
+
+| 実装するスイッチ | MX プレートマウント<br>→ サフィックス無し | MX PCB マウント<br>→ `_MXPCBStab` | Kailh Choc 1350 (V1)<br>→ `_ChocStab` | Kailh Choc V2<br>→ `_ChocV2Stab` |
+|---|---|---|---|---|
+| Cherry MX | ○ | ○ | ✕ | ✕ |
+| Cherry MX Low Profile | △ 高さ互換未検証 | △ 高さ互換未検証 | ✕ | ✕ |
+| Kailh Choc V1 (PG1350) | ✕ | ✕ | ○ | ✕ |
+| Kailh Choc V2 (PG1353) | ✕ | ✕ | ✕ ワイヤー干渉 | ○ |
+| Gateron Low Profile | ✕ | ✕ | ✕ | ○ KS-33（KS-27 は情報なし） |
+| Hybrid（MX × Choc） | 実際に載せるスイッチの行に従う | 同左 | 同左 | 同左 |
+
+- 「プレートマウント」と言っても MX 用と Choc 用のスタビは別部品で互換性はない
+  （プレート開口形状・高さ・PCB への要求がすべて異なる）
+- Hybrid ベースはスイッチ穴こそ MX / Choc 両対応だが、**スタビ付きキーは
+  バリアント選択時点でどちらで組むか決める必要がある**（2u では MX NPTH 穴と
+  Choc スロットが幾何的に共存できない）。Choc 側の可能性を残したい場合は
+  `_ChocStab` / `_ChocV2Stab` を選ぶ（MX で組むときはプレートマウント MX スタビが
+  併用可能。`_MXPCBStab` を選ぶと Choc ビルドでのスタビ手段が無くなる）
+- MX スタビ用のプレート開口（Cherry 仕様カット）線は現状未提供。プレート
+  マウント・PCB マウントとも Cherry スタイルのカットが必要になる点に注意
 - **寸法出典**: [kiswitch](https://github.com/kiswitch/kiswitch)
   （`KiSwitch/switch.py` StabilizerCherryMX のステム間隔 / `keycap.py`）と
   [marbastlib](https://github.com/ebastler/marbastlib)（CERN-OHL-P v2。
-  `STAB_MX_*` の穴 y 座標・4.5u、`STAB_choc_*` の Choc スロット形状）。
+  `STAB_MX_*` の穴 y 座標・4.5u、`STAB_choc_*` の Choc V1 スロット形状）と
+  [Keebio-Parts.pretty](https://github.com/keebio/Keebio-Parts.pretty)（MIT。
+  `Kailh-Choc-V2-2u-Stabilizer-CPG1353G24D01-Cutout` の Choc V2 スロット形状）。
   ISO Enter の外形（上段 1.5u + 下段 1.25u 右端揃え、スイッチは下段列の中心）は
   kiswitch 準拠
 - **注意**: キーキャップ範囲のコートヤードは、キャップ下に置くダイオード等も
   DRC エラーにする。物理的に問題ない配置は KiCad 側で除外指定するか、ベース版を使う
-- **検証**: KiCad 10.0.5 の `kicad-cli fp export svg` で 658 ファイル全部のパースを
+- **検証**: KiCad 10.0.5 の `kicad-cli fp export svg` で 660 ファイル全部のパースを
   確認済み。コートヤード寸法・スタビ穴座標はスクリプトで機械チェック済み。
   プレビュー画像はベース 33 のみ（バリアントは枚数が膨大なため生成しない）
 

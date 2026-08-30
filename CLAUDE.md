@@ -13,8 +13,13 @@
   - `_MXPCBStab` = Cherry MX PCBマウントスタビのNPTH穴付き(MX系ベースのみ。ステム間隔はkiswitch、
     穴y座標(小−6.985/大+8.255=15.24mm間隔)と4.5uはmarbastlib準拠、詳細はREADMEのフォーク限定節)。
     MXのプレートマウントスタビはサフィックス無し版で対応(PCB側に要素不要)
-  - `_ChocStab` = Kailh Choc 1350スタビ用(Choc系ベース×2.00u/6.25uのみ)。丸穴ではなく
-    **Edge.Cutsの角丸スロット4個**+プレートカット線をUser.5に持つ(形状はmarbastlib STAB_choc_*準拠)
+  - `_ChocStab` = Kailh Choc 1350(V1)スタビ用(Choc V1対応ベース×2.00u/6.25uのみ)。丸穴ではなく
+    **Edge.Cutsの角丸スロット4個**+プレートカット線をUser.5に持つ(形状はmarbastlib STAB_choc_*準拠)。
+    **Choc V1専用**(ワイヤーがV2ハウジングと干渉するためV2不可。V2専用ベースには生成しない)
+  - `_ChocV2Stab` = Kailh Choc V2スタビ(CPG1353G24D01)用(2.00uのみ、Choc V2/Gateron KS-33対応・V1非互換)。
+    **Edge.Cutsの矩形スロット2個**(6.5×9.5mm、中心x=±12.0、形状はKeebio-Parts.pretty準拠、MIT)。
+    プレートカット線なし(寸法はKeebio Plate Generator参照)。ホットスワップ系はソケットパッドと
+    スロットが物理干渉するため生成しない(スクリプトが干渉チェックで自動スキップ、THT系6種のみ)
 - **User.1〜User.4**: プレートカット線(User.1=15.60 化粧カバー / User.2=14.00 MX系 / User.3=13.95 Choc V2 / User.4=13.80 Choc V1)
 - **User.5**: Chocスタビ用プレートカット線(`_ChocStab` バリアントのみ)
 - 各ファイルの `descr` にレイヤ⇄用途の対応を記載する
