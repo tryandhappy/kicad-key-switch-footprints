@@ -35,11 +35,12 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
 - `preview/` の画像もカット線入りで再生成してある
   （`kicad-cli fp export svg` + 黒背景化。ベースは上流コミット `b4afad5`）
 
-## ★ このフォーク限定: キーキャップサイズバリアント `variants.pretty/`（2026-08-30）
+## ★ このフォーク限定: キーキャップサイズバリアント `variants-*.pretty`（2026-08-30）
 
 **`single.pretty/` + `double.pretty/` の 33 ベースフットプリントから、
-キーキャップサイズ別のバリアント（660 ファイル）を `variants.pretty/`
-（別ライブラリとして登録する）に自動生成してある。**
+キーキャップサイズ別のバリアント（660 ファイル）をスイッチ種別の
+4 ライブラリに自動生成してある**（`variants-mx` 299 / `variants-choc` 191 /
+`variants-mx-choc` 127 / `variants-gateron` 43。それぞれ別ライブラリとして登録）。
 再生成は `python3 scripts/generate_variants.py`。
 
 - **ベース（直下 33 ファイル）= キーキャップなし**。コートヤードはスイッチ単体の
@@ -114,14 +115,18 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
 
 ## ★ このフォーク限定: ライブラリ構成（実装方式で分割。2026-08-30）
 
-上流はリポジトリ直下が 1 ライブラリだったが、このフォークでは**実装方式で
-`.pretty` を分割**してある。KiCad には 3 つを別ライブラリとして登録する:
+上流はリポジトリ直下が 1 ライブラリだったが、このフォークでは**ベースを実装方式、
+バリアントをスイッチ種別で `.pretty` に分割**してある。KiCad には使うものを
+別ライブラリとして登録する（最大 6 つ）:
 
 | ライブラリ | 内容 | ファイル数 |
 |---|---|---|
 | `single.pretty/` | **片面実装**ベース（`_alt*` の片面版・`_nSilk`・`_swap` を含む） | 28 |
 | `double.pretty/` | **両面実装**ベース＝リバーシブル基板用（`_double`、その `_alt1/_alt2` を含む） | 5 |
-| `variants.pretty/` | キーキャップサイズ別バリアント（生成物。上記 33 ベース全部が元） | 660 |
+| `variants-mx.pretty/` | バリアント: MX 純系（ハイブリッド除く。生成物） | 299 |
+| `variants-choc.pretty/` | バリアント: Choc 純系（V1 / V2 / Choc V1V2 ハイブリッド。生成物） | 191 |
+| `variants-mx-choc.pretty/` | バリアント: MX × Choc ハイブリッド（生成物） | 127 |
+| `variants-gateron.pretty/` | バリアント: Gateron Low Profile（生成物） | 43 |
 
 サフィックスの意味（ベース名の系統）:
 

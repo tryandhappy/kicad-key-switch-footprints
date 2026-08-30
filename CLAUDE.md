@@ -8,7 +8,9 @@
 
 - **ベース(single/double.pretty の33ファイル)= キーキャップなし**: F.CrtYd はスイッチ単体の占有範囲(16.5mm角)。
   `_alt1/_alt2` は代替パッド配置で親系統(片面/両面)のフォルダに入れる
-- **`variants.pretty/`(別ライブラリ、生成物)**: キーキャップサイズ別バリアント。
+- **`variants-*.pretty/`(生成物、スイッチ種別で4ライブラリ)**: キーキャップサイズ別バリアント。
+  variants-mx(MX純系299) / variants-choc(Choc純系191) / variants-mx-choc(MX×Chocハイブリッド127) /
+  variants-gateron(Gateron LP 43)。
   再生成は `python3 scripts/generate_variants.py`(全削除→再生成。手編集禁止、直すのはスクリプト側)
   - コートヤード = キーキャップ範囲。外縁は公称(w×19.05×19.05)より各辺0.025mm控え
     (1u なら中心線±9.475・線幅0.05で外縁19.00mm角)。19.05mmピッチの隣接キーと誤DRCしないため

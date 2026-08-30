@@ -2,8 +2,10 @@
 """キーキャップサイズバリアント生成スクリプト
 
 single.pretty/(片面実装)と double.pretty/(両面実装)のベースフットプリント
-(キーキャップなし)から、variants.pretty/ にキーキャップサイズ別の
-フットプリントを生成する。
+(キーキャップなし)から、キーキャップサイズ別のフットプリントを
+スイッチ種別ごとの 4 ライブラリに生成する:
+variants-mx.pretty(MX 純系) / variants-choc.pretty(Choc V1/V2 純系) /
+variants-mx-choc.pretty(MX×Choc ハイブリッド) / variants-gateron.pretty(Gateron LP)。
 
 - コートヤードをキーキャップ占有範囲に置換
   (外縁 = 公称キーキャップ範囲より各辺 0.025mm 控え。
@@ -34,7 +36,19 @@ import uuid
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-OUT_DIR = ROOT / "variants.pretty"
+OUT_DIRS = {k: ROOT / f"variants-{k}.pretty"
+            for k in ("mx", "choc", "mx-choc", "gateron")}
+
+
+def out_dir(base_name):
+    """バリアントの出力先ライブラリをベース名から決める(スイッチ種別)。"""
+    if base_name.startswith("SW_Gateron_"):
+        return OUT_DIRS["gateron"]
+    if base_name.startswith("SW_Kailh_Choc_"):
+        return OUT_DIRS["choc"]
+    if "Choc" in base_name:   # SW_MX_*Choc* ハイブリッド
+        return OUT_DIRS["mx-choc"]
+    return OUT_DIRS["mx"]
 
 U = 19.05          # 1u ピッチ [mm]
 SHRINK = 0.025     # コートヤード外縁の控え(各辺)[mm]
@@ -376,9 +390,10 @@ def make_variant(base_text, base_name, suffix, size, stab):
 
 
 def main():
-    OUT_DIR.mkdir(exist_ok=True)
-    for old in OUT_DIR.glob("*.kicad_mod"):
-        old.unlink()
+    for d in OUT_DIRS.values():
+        d.mkdir(exist_ok=True)
+        for old in d.glob("*.kicad_mod"):
+            old.unlink()
 
     bases = sorted([*(ROOT / "single.pretty").glob("*.kicad_mod"),
                     *(ROOT / "double.pretty").glob("*.kicad_mod")],
@@ -415,10 +430,12 @@ def main():
 
         for suffix, size, stab in variants:
             name, text = make_variant(base_text, base_name, suffix, size, stab)
-            (OUT_DIR / f"{name}.kicad_mod").write_text(text)
+            (out_dir(base_name) / f"{name}.kicad_mod").write_text(text)
             count += 1
 
-    print(f"生成完了: {count} ファイル -> {OUT_DIR}")
+    breakdown = ", ".join(f"{d.name}={len(list(d.glob('*.kicad_mod')))}"
+                          for d in OUT_DIRS.values())
+    print(f"生成完了: {count} ファイル ({breakdown})")
 
 
 if __name__ == "__main__":
