@@ -38,9 +38,9 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
 ## ★ このフォーク限定: キーキャップサイズバリアント `variants-*.pretty`（2026-08-30）
 
 **`single.pretty/` + `double.pretty/` の 33 ベースフットプリントから、
-キーキャップサイズ別のバリアント（711 ファイル）をスイッチ種別の
-4 ライブラリに自動生成してある**（`variants-mx` 325 / `variants-choc` 203 /
-`variants-mx-choc` 137 / `variants-gateron` 46。それぞれ別ライブラリとして登録）。
+キーキャップサイズ別のバリアント（1268 ファイル）をスイッチ種別の
+4 ライブラリに自動生成してある**（`variants-mx` 550 / `variants-choc` 406 /
+`variants-mx-choc` 220 / `variants-gateron` 92。それぞれ別ライブラリとして登録）。
 再生成は `python3 scripts/generate_variants.py`。
 
 - **ベース（直下 33 ファイル）= キーキャップなし**。コートヤードはスイッチ単体の
@@ -49,9 +49,10 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
   DRC の「コートヤード重複」で他部品との干渉を検出できる。
   外縁は公称より各辺 0.025mm 控え（例: 1u → 19.00mm 角）にしてあり、
   19.05mm ピッチで隣接するキー同士は誤検出しない
-- **命名**: `<ベース名>_<サイズ>` 。サイズは
+- **命名**: `<ベース名>_<サイズ>[_<スタビ>][_Diode]` 。サイズは
   `1.00u` `1.25u` `1.50u` `1.75u` `2.00u` `2.25u` `2.75u` `3.00u` `4.50u`
-  `6.00u` `6.25u` `6.50u` `7.00u` `ISOEnter` `ISOEnterFlip`（ISO Enter の上下反転。キーキャップ外形のみ反転、スイッチとスタビの向きはそのまま）
+  `6.00u` `6.25u` `6.50u` `7.00u` `ISOEnter` `ISOEnterFlip`（ISO Enter の上下反転。キーキャップ外形のみ反転、スイッチとスタビの向きはそのまま）。
+  `_Diode` は裏面 SMD ダイオードパッド付き（次節）
 - **スタビライザー**（2u 以上と ISO Enter）:
   - **サフィックス無し版 = スタビ用の PCB 要素なし**。MX のプレートマウントスタビは
     そのまま使える
@@ -117,9 +118,40 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
   kiswitch 準拠
 - **注意**: キーキャップ範囲のコートヤードは、キャップ下に置くダイオード等も
   DRC エラーにする。物理的に問題ない配置は KiCad 側で除外指定するか、ベース版を使う
-- **検証**: KiCad 10.0.5 の `kicad-cli fp export svg` で 711 ファイル全部のパースを
+- **検証**: KiCad 10.0.5 の `kicad-cli fp export svg` で 1268 ファイル全部のパースを
   確認済み。コートヤード寸法・スタビ穴座標はスクリプトで機械チェック済み。
-  プレビュー画像はベース 33 のみ（バリアントは枚数が膨大なため生成しない）
+  プレビュー画像はベース 33 + `_Diode` ベース 27 のみ
+  （バリアントは枚数が膨大なため生成しない）
+
+## ★ このフォーク限定: 裏面 SMD ダイオード付き `_Diode` バリアント（2026-08-31）
+
+**手半田できるサイズの表面実装ダイオードを裏面（B.Cu）に組み込んだ `_Diode` 版を
+自動生成してある。** ベース版（コートヤードなし）は `single.pretty/` 内の
+`<ベース名>_Diode`（27 ファイル、生成物）、キーキャップサイズ別は各 `variants-*` の
+`<ベース名>_<サイズ>[_<スタビ>]_Diode`。
+
+- **パッド**: SMD roundrect **2.0×1.4mm** ×2、ダイオード軸方向 ±1.6mm
+  （内縁 0.6 / 外縁 2.6mm）。**SOD-123（1N4148W 等）/ SOD-323（1N4148WS 等）/
+  MiniMELF（LL-34、LL4148 等）兼用**の手半田ロングパッド
+- **パッド番号**: `1` `2` = スイッチ / **`3` = ダイオードのアノード /
+  `4` = カソード**。フットプリント内で 2-3 間は接続していないので、
+  通常の行列マトリクスなら基板配線で 2→3（または 1→4）をつなぐ
+- **回路図シンボル**: `symbols/key-switch-diode.kicad_sym` の **`SW_Key_Diode`**
+  （スイッチ＋直列ダイオード一体、ピン 1/2/3=A/4=K）を使う。
+  全 `_Diode` フットプリント共通
+- **配置**（スイッチ種別内で統一。カソード = 縦置きは上 / 横置きは左）:
+  - **MX / MX Low Profile**: 左端に縦置き、中心 (−7.2, −4.0)
+  - **Choc 純系 / MX×Choc ハイブリッド**: 左上に横置き、中心 (−4.6, −5.0)
+  - **Gateron Low Profile**: 上端に横置き、中心 (+1.8, −7.2)
+  - いずれもスイッチ単体のコートヤード（16.5mm 角）内に完全に収まる =
+    Choc ホットスワップ等でソケットパッドが左右にはみ出す帯
+    （隣接キーと重なる領域）にはかからない。ホットスワップソケット本体からも
+    離してあり、こてが入る
+- **生成対象外（自動スキップ）**: 裏面に物理干渉がある 6 ベース =
+  両面実装の `double.pretty` 全 5 種と `SW_MX_Kailh_Choc_V1V2_HotSwap_Hybrid`
+  （MX ソケットが裏面上半分を占有）。`_alt1` 版は両ソケットとも下半分なので生成される
+- **Compatibility Table（下記・上流のまま）の各フットプリントについて、
+  スイッチ互換性は `_Diode` 版でも同一**（ダイオード要素の追加のみ）
 
 ## ★ このフォーク限定: ライブラリ構成（実装方式で分割。2026-08-30）
 
@@ -129,12 +161,15 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
 
 | ライブラリ | 内容 | ファイル数 |
 |---|---|---|
-| `single.pretty/` | **片面実装**ベース（`_alt*` の片面版・`_nSilk`・`_swap` を含む） | 28 |
+| `single.pretty/` | **片面実装**ベース（`_alt*` の片面版・`_nSilk`・`_swap` を含む） | 55（手書き 28 + 生成 `_Diode` 27） |
 | `double.pretty/` | **両面実装**ベース＝リバーシブル基板用（`_double`、その `_alt1/_alt2` を含む） | 5 |
-| `variants-mx.pretty/` | バリアント: MX 純系（ハイブリッド除く。生成物） | 325 |
-| `variants-choc.pretty/` | バリアント: Choc 純系（V1 / V2 / Choc V1V2 ハイブリッド。生成物） | 203 |
-| `variants-mx-choc.pretty/` | バリアント: MX × Choc ハイブリッド（生成物） | 137 |
-| `variants-gateron.pretty/` | バリアント: Gateron Low Profile（生成物） | 46 |
+| `variants-mx.pretty/` | バリアント: MX 純系（ハイブリッド除く。生成物） | 550 |
+| `variants-choc.pretty/` | バリアント: Choc 純系（V1 / V2 / Choc V1V2 ハイブリッド。生成物） | 406 |
+| `variants-mx-choc.pretty/` | バリアント: MX × Choc ハイブリッド（生成物） | 220 |
+| `variants-gateron.pretty/` | バリアント: Gateron Low Profile（生成物） | 92 |
+
+このほか `symbols/key-switch-diode.kicad_sym`（`_Diode` フットプリント用の
+スイッチ＋ダイオード一体シンボル `SW_Key_Diode`）をシンボルライブラリとして登録できる。
 
 サフィックスの意味（ベース名の系統）:
 
@@ -144,6 +179,7 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
   クリッキースイッチのバネ逃げ NPTH 追加版。詳細は各 descr と Compatibility Table 脚注）
 - **`_nSilk`** = 表シルクなし、**`_swap`** = ピン番号入替え
 - HotSwap の **`_PTH`** = ソケット穴メッキあり / **`_THT`** = メッキなし
+- **`_Diode`** = 裏面 SMD ダイオードパッド付き（生成物。前節参照）
 
 このフォークを submodule として使う場合は上流ではなくこちらの URL を指定する
 （次節「Usage」の URL は上流のまま。また上流と違い**リポジトリ直下は

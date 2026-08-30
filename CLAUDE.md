@@ -1,16 +1,19 @@
 # kicad-key-switch-footprints
 
 キースイッチ(MX / Kailh Choc / Gateron Low Profile)用 KiCad フットプリント集。
-`single.pretty/`(片面実装28)+`double.pretty/`(両面実装5)がベース本体、
-`preview/*.svg` が README 用のプレビュー画像。リポジトリ直下はライブラリではない。
+`single.pretty/`(片面実装。手書き28+生成 `_Diode` 27)+`double.pretty/`(両面実装5)がベース本体、
+`preview/*.svg` が README 用のプレビュー画像(ベース33+`_Diode` 27)。リポジトリ直下はライブラリではない。
+`symbols/key-switch-diode.kicad_sym` は `_Diode` フットプリント用の一体シンボル(手書き)。
 
 ## 構成とレイヤ規約
 
-- **ベース(single/double.pretty の33ファイル)= キーキャップなし**: F.CrtYd はスイッチ単体の占有範囲(16.5mm角)。
-  `_alt1/_alt2` は代替パッド配置で親系統(片面/両面)のフォルダに入れる
+- **ベース(single/double.pretty の手書き33ファイル)= キーキャップなし**: F.CrtYd はスイッチ単体の占有範囲(16.5mm角)。
+  `_alt1/_alt2` は代替パッド配置で親系統(片面/両面)のフォルダに入れる。
+  **`*_Diode.kicad_mod` は生成物**(手編集禁止。`_Diode` はスクリプトの予約サフィックスで、
+  再生成時に削除されるため手書きベース名に使ってはいけない)
 - **`variants-*.pretty/`(生成物、スイッチ種別で4ライブラリ)**: キーキャップサイズ別バリアント。
-  variants-mx(MX純系325) / variants-choc(Choc純系203) / variants-mx-choc(MX×Chocハイブリッド137) /
-  variants-gateron(Gateron LP 46)。
+  variants-mx(MX純系550) / variants-choc(Choc純系406) / variants-mx-choc(MX×Chocハイブリッド220) /
+  variants-gateron(Gateron LP 92)。
   再生成は `python3 scripts/generate_variants.py`(全削除→再生成。手編集禁止、直すのはスクリプト側)
   - コートヤード = キーキャップ範囲。外縁は公称(w×19.05×19.05)より各辺0.025mm控え
     (1u なら中心線±9.475・線幅0.05で外縁19.00mm角)。19.05mmピッチの隣接キーと誤DRCしないため
@@ -27,6 +30,13 @@
     プレートカット線をUser.5に持つ(本体5.95×7.95+突出4.55×6.25+ワイヤー溝全幅×1.4、
     kb-plategen準拠、重なる外形はプレートCAD側でunion)。ホットスワップ系はソケットパッドと
     スロットが物理干渉するため生成しない(スクリプトが干渉チェックで自動スキップ、THT系6種のみ)
+  - `_Diode` = 裏面SMDダイオードパッド付き(B.Cu/B.Paste/B.Mask の 2.0×1.4mm パッド ±1.6mm =
+    SOD-123/SOD-323/MiniMELF 兼用手半田ロング。パッド3=A/4=K、B.SilkSカソードバー+B.Fab外形)。
+    配置はスイッチ種別内で統一(mx: 左端縦置き(−7.2,−4.0) / choc・mx-choc: 横置き(−4.6,−5.0) /
+    gateron: 横置き(+1.8,−7.2)。カソード=縦は上/横は左)。ベース版はコートヤードそのままで
+    single.pretty 内に生成。裏面が物理干渉する6ベース(double全5+MX×Choc HotSwapハイブリッド)は
+    自動スキップ(パッド円近似+裏面図形の線分サンプリング判定)。
+    回路図は `symbols/key-switch-diode.kicad_sym` の SW_Key_Diode(2-3間は基板配線でつなぐ)
 - **User.1〜User.4**: プレートカット線(User.1=15.60 化粧カバー / User.2=14.00 MX系 / User.3=13.95 Choc V2 / User.4=13.80 Choc V1)
 - **User.5**: スタビ用プレートカット線(`_MXPCBStab` / `_ChocV1Stab` / `_ChocV2Stab` バリアントのみ)
 - 各ファイルの `descr` にレイヤ⇄用途の対応を記載する
