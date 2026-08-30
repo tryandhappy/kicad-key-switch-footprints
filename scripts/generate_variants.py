@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """キーキャップサイズバリアント生成スクリプト
 
-リポジトリ直下のベースフットプリント(キーキャップなし)から、
-variants.pretty/ にキーキャップサイズ別のフットプリントを生成する。
+single.pretty/(片面実装)と double.pretty/(両面実装)のベースフットプリント
+(キーキャップなし)から、variants.pretty/ にキーキャップサイズ別の
+フットプリントを生成する。
 
 - コートヤードをキーキャップ占有範囲に置換
   (外縁 = 公称キーキャップ範囲より各辺 0.025mm 控え。
@@ -379,7 +380,9 @@ def main():
     for old in OUT_DIR.glob("*.kicad_mod"):
         old.unlink()
 
-    bases = sorted(ROOT.glob("*.kicad_mod"))
+    bases = sorted([*(ROOT / "single.pretty").glob("*.kicad_mod"),
+                    *(ROOT / "double.pretty").glob("*.kicad_mod")],
+                   key=lambda p: p.name)
     assert bases, "ベースフットプリントが見つかりません"
     count = 0
     for base in bases:

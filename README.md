@@ -37,9 +37,10 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
 
 ## ★ このフォーク限定: キーキャップサイズバリアント `variants.pretty/`（2026-08-30）
 
-**リポジトリ直下の 33 ベースフットプリントから、キーキャップサイズ別の
-バリアント（660 ファイル）を `variants.pretty/`（別ライブラリとして登録する）に
-自動生成してある。** 再生成は `python3 scripts/generate_variants.py`。
+**`single.pretty/` + `double.pretty/` の 33 ベースフットプリントから、
+キーキャップサイズ別のバリアント（660 ファイル）を `variants.pretty/`
+（別ライブラリとして登録する）に自動生成してある。**
+再生成は `python3 scripts/generate_variants.py`。
 
 - **ベース（直下 33 ファイル）= キーキャップなし**。コートヤードはスイッチ単体の
   占有範囲（16.5mm 角）のまま
@@ -111,10 +112,29 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
   確認済み。コートヤード寸法・スタビ穴座標はスクリプトで機械チェック済み。
   プレビュー画像はベース 33 のみ（バリアントは枚数が膨大なため生成しない）
 
-## ★ このフォークの利用
+## ★ このフォーク限定: ライブラリ構成（実装方式で分割。2026-08-30）
+
+上流はリポジトリ直下が 1 ライブラリだったが、このフォークでは**実装方式で
+`.pretty` を分割**してある。KiCad には 3 つを別ライブラリとして登録する:
+
+| ライブラリ | 内容 | ファイル数 |
+|---|---|---|
+| `single.pretty/` | **片面実装**ベース（`_alt*` の片面版・`_nSilk`・`_swap` を含む） | 28 |
+| `double.pretty/` | **両面実装**ベース＝リバーシブル基板用（`_double`、その `_alt1/_alt2` を含む） | 5 |
+| `variants.pretty/` | キーキャップサイズ別バリアント（生成物。上記 33 ベース全部が元） | 660 |
+
+サフィックスの意味（ベース名の系統）:
+
+- **無印** = 片面実装の標準版
+- **`_double`** = 両面実装（リバーシブル基板の表裏どちらにも実装できる）
+- **`_alt1` / `_alt2`** = 同機能の代替パッド/穴配置（例: `Kailh_Choc_V1_THT_alt1` は
+  クリッキースイッチのバネ逃げ NPTH 追加版。詳細は各 descr と Compatibility Table 脚注）
+- **`_nSilk`** = 表シルクなし、**`_swap`** = ピン番号入替え
+- HotSwap の **`_PTH`** = ソケット穴メッキあり / **`_THT`** = メッキなし
 
 このフォークを submodule として使う場合は上流ではなくこちらの URL を指定する
-（次節「Usage」の URL は上流のまま）:
+（次節「Usage」の URL は上流のまま。また上流と違い**リポジトリ直下は
+ライブラリではない**ので、上記 3 フォルダを個別に登録すること）:
 
 ```
 git submodule add https://github.com/tryandhappy/kicad-key-switch-footprints.git

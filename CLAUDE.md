@@ -1,11 +1,13 @@
 # kicad-key-switch-footprints
 
 キースイッチ(MX / Kailh Choc / Gateron Low Profile)用 KiCad フットプリント集。
-リポジトリ直下の `*.kicad_mod` が本体、`preview/*.svg` が README 用のプレビュー画像。
+`single.pretty/`(片面実装28)+`double.pretty/`(両面実装5)がベース本体、
+`preview/*.svg` が README 用のプレビュー画像。リポジトリ直下はライブラリではない。
 
 ## 構成とレイヤ規約
 
-- **ベース(直下33ファイル)= キーキャップなし**: F.CrtYd はスイッチ単体の占有範囲(16.5mm角)
+- **ベース(single/double.pretty の33ファイル)= キーキャップなし**: F.CrtYd はスイッチ単体の占有範囲(16.5mm角)。
+  `_alt1/_alt2` は代替パッド配置で親系統(片面/両面)のフォルダに入れる
 - **`variants.pretty/`(別ライブラリ、生成物)**: キーキャップサイズ別バリアント。
   再生成は `python3 scripts/generate_variants.py`(全削除→再生成。手編集禁止、直すのはスクリプト側)
   - コートヤード = キーキャップ範囲。外縁は公称(w×19.05×19.05)より各辺0.025mm控え
@@ -35,7 +37,8 @@ npm run run:all     # export + svg を一括実行
 
 - `npm run export` … `kicad-cli fp export svg` で全フットプリントを `scripts/export/`(git 管理外)へエクスポート
   - `kicad-cli` が PATH に無い環境では AppImage 経由で実行する:
-    `~/Applications/KiCad-10.0.5-x86_64.AppImage kicad-cli fp export svg -o ./export/ ./../`
+    `~/Applications/KiCad-10.0.5-x86_64.AppImage kicad-cli fp export svg -o ./export/ ./../single.pretty/`
+    `~/Applications/KiCad-10.0.5-x86_64.AppImage kicad-cli fp export svg -o ./export/ ./../double.pretty/`
     (その後 `npm run svg` で後処理)
 - `npm run svg` … `svg-processor.js` が `scripts/export/*.svg` を後処理して `preview/` へ出力
 

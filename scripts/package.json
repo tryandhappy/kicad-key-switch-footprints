@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "export": "kicad-cli fp export svg -o ./export/ ./../",
+    "export": "kicad-cli fp export svg -o ./export/ ./../single.pretty/ && kicad-cli fp export svg -o ./export/ ./../double.pretty/",
     "svg": "node ./svg-processor.js",
     "run:all": "npm run export && npm run svg"
   },
