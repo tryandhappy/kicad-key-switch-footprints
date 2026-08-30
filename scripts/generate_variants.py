@@ -152,17 +152,18 @@ DIODE_SILK = (2.86, 0.96)     # B.SilkS 長辺の半長 / c オフセット(線�
 DIODE_FAB = (1.9, 0.9, -1.2)  # B.Fab ボディ半長 / 半高 / カソードバー a 位置(線幅 0.1)
 # family -> (cx, cy, vertical)。vertical=True は 90°回転。
 # カソード向きの規則: 座標の負方向 = 縦置きは上 / 横置きは左。
-# 位置は全ベースの B.Cu 占有(パッド・穴・ソケット外形)を実測して決定:
-# - mx: 左端縦置き。SW_MX_HotSwap_THT の上半分 THT パッドとソケット本体を回避
-# - choc: SW_Kailh_Choc_V1_HotSwap_THT の上半分 THT パッド (0,-5.9)/(5,-3.8) と
-#   Choc V2 ボス穴 (5,-5.15) を避けて左寄せ横置き
-# - gateron: SW_Gateron_LowProfile_HotSwap_THT の上半分 THT パッド
-#   (-2.6,-5.75)/(4.4,-4.7) を避けて右上横置き
+# 位置は全ベースの B.Cu 占有(パッド・穴・ソケット外形)を実測して決定。
+# 全系統とも左端縦置き (-7.2, -4.0) に統一:
+# - 中央北側 y≈-4.7 のバックライト LED 窓(Choc V1/V2、MX 等。SK6812 MINI-E の
+#   ランドで x≈±3.2)を 3mm 以上のクリアランスで回避
+# - SW_MX_HotSwap_THT / SW_Kailh_Choc_V1_HotSwap_THT /
+#   SW_Gateron_LowProfile_HotSwap_THT の上半分 THT パッドを回避
+# - 最小クリアランスは Choc サイドボス NPTH (-5.5, 0) との 0.87mm
 DIODE_PLACEMENT = {
     "mx": (-7.2, -4.0, True),
-    "choc": (-4.6, -5.0, False),
-    "mx-choc": (-4.6, -5.0, False),
-    "gateron": (1.8, -7.2, False),
+    "choc": (-7.2, -4.0, True),
+    "mx-choc": (-7.2, -4.0, True),
+    "gateron": (-7.2, -4.0, True),
 }
 
 
