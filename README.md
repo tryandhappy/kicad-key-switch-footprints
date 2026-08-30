@@ -53,7 +53,7 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
 - **スタビライザー**（2u 以上と ISO Enter）:
   - **サフィックス無し版 = スタビ用の PCB 要素なし**。MX のプレートマウントスタビは
     そのまま使える
-  - **Cherry MX PCB マウント用 → `_PCBStab` 版**（MX 系ベース 18 種のみ）。
+  - **Cherry MX PCB マウント用 → `_MXPCBStab` 版**（MX 系ベース 18 種のみ）。
     NPTH 小穴 Ø3.048（y=−6.985）+ 大穴 Ø3.9878（y=+8.255。小穴と 15.24mm 間隔）、
     ステム位置は 2u系=±11.938 / 3u=±19.05 / 4.5u=±33.3375 / 6u=±47.625 /
     6.25u=±50 / 7u=±57.15mm。
@@ -65,7 +65,7 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
     本体スロット 5.3×5.5mm + ワイヤースロット 4.0×3.5mm（角 R0.5）、
     ステム位置 2u=±12.0 / 6.25u=±38.0mm。スタビ用プレートカット線は `User.5`
   - **6.50u は PCB マウントスタビの標準規格が無い**（kiswitch / marbastlib にも無い）
-    ため `_PCBStab` 版は生成していない
+    ため `_MXPCBStab` 版は生成していない
 - **寸法出典**: [kiswitch](https://github.com/kiswitch/kiswitch)
   （`KiSwitch/switch.py` StabilizerCherryMX のステム間隔 / `keycap.py`）と
   [marbastlib](https://github.com/ebastler/marbastlib)（CERN-OHL-P v2。

@@ -7,7 +7,7 @@ variants.pretty/ にキーキャップサイズ別のフットプリントを生
 - コートヤードをキーキャップ占有範囲に置換
   (外縁 = 公称キーキャップ範囲より各辺 0.025mm 控え。
    19.05mm ピッチで隣接キー同士が誤 DRC エラーにならないため)
-- 2u 以上は Cherry MX PCB マウントスタビ穴付きの `_PCBStab` 版も生成
+- 2u 以上は Cherry MX PCB マウントスタビ穴付きの `_MXPCBStab` 版も生成
   (MX 系ベースのみ。MX のプレートマウントスタビは PCB 側に要素不要なので
    プレーン版がそのまま対応)
 - Choc 系ベースには Kailh Choc 1350 スタビ用の `_ChocStab` 版も生成
@@ -331,12 +331,12 @@ def main():
         for w in REGULAR_SIZES:
             variants.append((f"{w:.2f}u", w, None))
             if is_mx and w >= STAB_MIN_SIZE and w in STAB_X_OFFSET:
-                variants.append((f"{w:.2f}u_PCBStab", w, "mx"))
+                variants.append((f"{w:.2f}u_MXPCBStab", w, "mx"))
             if is_choc and w in CHOC_STAB_X:
                 variants.append((f"{w:.2f}u_ChocStab", w, "choc"))
         variants.append(("ISOEnter", "ISOEnter", None))
         if is_mx:
-            variants.append(("ISOEnter_PCBStab", "ISOEnter", "mx"))
+            variants.append(("ISOEnter_MXPCBStab", "ISOEnter", "mx"))
 
         for suffix, size, stab in variants:
             name, text = make_variant(base_text, base_name, suffix, size, stab)
