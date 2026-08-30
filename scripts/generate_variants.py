@@ -479,8 +479,10 @@ def diode_descr(vertical):
             f" {'up' if vertical else 'left'})."
             " Combined hand-soldering land for SOD-123 / SOD-323 / MiniMELF"
             " (LL-34, LL4148): 2.0x1.4mm pads at +/-1.6mm axial offset."
-            " Connect pad 2 to pad 3 (or 1 to 4) externally for the usual"
-            " row/column matrix.")
+            " With the bundled SW_Key_Diode symbol pins 2 and 3 are stacked"
+            " (one net), so the switch-diode series circuit is complete at"
+            " schematic level; on the PCB route the short pad 2 - pad 3 track"
+            " shown by the ratsnest, and wire the matrix to pads 1 and 4.")
 
 
 def existing_pads(s):

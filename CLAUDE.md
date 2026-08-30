@@ -36,7 +36,8 @@
     (SK6812 MINI-E ランド x≈±3.2)を回避するため中央寄りには置かない。ベース版はコートヤードそのままで
     single.pretty 内に生成。裏面が物理干渉する6ベース(double全5+MX×Choc HotSwapハイブリッド)は
     自動スキップ(パッド円近似+裏面図形の線分サンプリング判定)。
-    回路図は `symbols/key-switch-diode.kicad_sym` の SW_Key_Diode(2-3間は基板配線でつなぐ)
+    回路図は `symbols/key-switch-diode.kicad_sym` の SW_Key_Diode。ピン2/3は同一座標スタック=
+    KiCadが接続扱い(置くだけで直列完成、PCBではパッド2→3の短い配線をラッツネストに従い引く)
 - **User.1〜User.4**: プレートカット線(User.1=15.60 化粧カバー / User.2=14.00 MX系 / User.3=13.95 Choc V2 / User.4=13.80 Choc V1)
 - **User.5**: スタビ用プレートカット線(`_MXPCBStab` / `_ChocV1Stab` / `_ChocV2Stab` バリアントのみ)
 - 各ファイルの `descr` にレイヤ⇄用途の対応を記載する
