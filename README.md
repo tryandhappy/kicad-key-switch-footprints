@@ -38,9 +38,9 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
 ## ★ このフォーク限定: キーキャップサイズバリアント `variants-*.pretty`（2026-08-30）
 
 **`single.pretty/` + `double.pretty/` の 33 ベースフットプリントから、
-キーキャップサイズ別のバリアント（660 ファイル）をスイッチ種別の
-4 ライブラリに自動生成してある**（`variants-mx` 299 / `variants-choc` 191 /
-`variants-mx-choc` 127 / `variants-gateron` 43。それぞれ別ライブラリとして登録）。
+キーキャップサイズ別のバリアント（711 ファイル）をスイッチ種別の
+4 ライブラリに自動生成してある**（`variants-mx` 325 / `variants-choc` 203 /
+`variants-mx-choc` 137 / `variants-gateron` 46。それぞれ別ライブラリとして登録）。
 再生成は `python3 scripts/generate_variants.py`。
 
 - **ベース（直下 33 ファイル）= キーキャップなし**。コートヤードはスイッチ単体の
@@ -51,7 +51,7 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
   19.05mm ピッチで隣接するキー同士は誤検出しない
 - **命名**: `<ベース名>_<サイズ>` 。サイズは
   `1.00u` `1.25u` `1.50u` `1.75u` `2.00u` `2.25u` `2.75u` `3.00u` `4.50u`
-  `6.00u` `6.25u` `6.50u` `7.00u` `ISOEnter`
+  `6.00u` `6.25u` `6.50u` `7.00u` `ISOEnter` `ISOEnterFlip`（ISO Enter の上下反転。キーキャップ外形のみ反転、スイッチとスタビの向きはそのまま）
 - **スタビライザー**（2u 以上と ISO Enter）:
   - **サフィックス無し版 = スタビ用の PCB 要素なし**。MX のプレートマウントスタビは
     そのまま使える
@@ -117,7 +117,7 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
   kiswitch 準拠
 - **注意**: キーキャップ範囲のコートヤードは、キャップ下に置くダイオード等も
   DRC エラーにする。物理的に問題ない配置は KiCad 側で除外指定するか、ベース版を使う
-- **検証**: KiCad 10.0.5 の `kicad-cli fp export svg` で 660 ファイル全部のパースを
+- **検証**: KiCad 10.0.5 の `kicad-cli fp export svg` で 711 ファイル全部のパースを
   確認済み。コートヤード寸法・スタビ穴座標はスクリプトで機械チェック済み。
   プレビュー画像はベース 33 のみ（バリアントは枚数が膨大なため生成しない）
 
@@ -131,10 +131,10 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
 |---|---|---|
 | `single.pretty/` | **片面実装**ベース（`_alt*` の片面版・`_nSilk`・`_swap` を含む） | 28 |
 | `double.pretty/` | **両面実装**ベース＝リバーシブル基板用（`_double`、その `_alt1/_alt2` を含む） | 5 |
-| `variants-mx.pretty/` | バリアント: MX 純系（ハイブリッド除く。生成物） | 299 |
-| `variants-choc.pretty/` | バリアント: Choc 純系（V1 / V2 / Choc V1V2 ハイブリッド。生成物） | 191 |
-| `variants-mx-choc.pretty/` | バリアント: MX × Choc ハイブリッド（生成物） | 127 |
-| `variants-gateron.pretty/` | バリアント: Gateron Low Profile（生成物） | 43 |
+| `variants-mx.pretty/` | バリアント: MX 純系（ハイブリッド除く。生成物） | 325 |
+| `variants-choc.pretty/` | バリアント: Choc 純系（V1 / V2 / Choc V1V2 ハイブリッド。生成物） | 203 |
+| `variants-mx-choc.pretty/` | バリアント: MX × Choc ハイブリッド（生成物） | 137 |
+| `variants-gateron.pretty/` | バリアント: Gateron Low Profile（生成物） | 46 |
 
 サフィックスの意味（ベース名の系統）:
 
@@ -147,7 +147,7 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
 
 このフォークを submodule として使う場合は上流ではなくこちらの URL を指定する
 （次節「Usage」の URL は上流のまま。また上流と違い**リポジトリ直下は
-ライブラリではない**ので、上記 3 フォルダを個別に登録すること）:
+ライブラリではない**ので、上記 6 フォルダのうち使うものを個別に登録すること）:
 
 ```
 git submodule add https://github.com/tryandhappy/kicad-key-switch-footprints.git

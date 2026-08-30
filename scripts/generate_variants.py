@@ -164,7 +164,7 @@ def courtyard_items(size, layers):
     """サイズに応じたコートヤード図形(旧書式1行スタイル)を返す。"""
     items = []
     for layer in layers:
-        if size == "ISOEnter":
+        if size in ("ISOEnter", "ISOEnterFlip"):
             # kiswitch の ISO Enter 外形(上段1.5u×1u+下段1.25u×1u、右端揃え、
             # スイッチは下段1.25u列の中心・上下2uの中心)を各辺0.05mm(=控え+線幅/2)
             # 内側にオフセットした中心線
@@ -172,6 +172,9 @@ def courtyard_items(size, layers):
                 (11.85625, 19.0), (11.85625, -19.0), (-16.61875, -19.0),
                 (-16.61875, -0.05), (-11.85625, -0.05), (-11.85625, 19.0),
             ]
+            if size == "ISOEnterFlip":
+                # キーキャップのみ上下反転。スイッチ(とスタビ)の向きは変えない
+                pts = [(x, -y) for x, y in pts]
             xy = " ".join(f"(xy {x} {y})" for x, y in pts)
             items.append(
                 f'(fp_poly (pts {xy}) (stroke (width {LINE_W}) (type solid))'
@@ -258,8 +261,9 @@ def mx_plate_cut_items(size):
     """Cherry MX スタビ用プレートカット線(User.5)を返す。ISO Enter は 90°回転。"""
     w, h, cy = MX_PLATE_CUT
     items = []
-    if size == "ISOEnter":
+    if size in ("ISOEnter", "ISOEnterFlip"):
         # 縦 2u スタビ。stab_holes と同じ回転: (x,y) -> (-y, x)
+        # (縦スタビは上下対称なので ISOEnterFlip でも同一配置)
         for y in (-STAB_X_OFFSET[2.0], STAB_X_OFFSET[2.0]):
             items += rounded_rect_items(-cy, y, h, w, "User.5", 0.05)
     else:
@@ -318,8 +322,9 @@ def choc_stab_slot_rects(size):
 def stab_holes(size):
     """Cherry MX PCB マウントスタビの NPTH パッド(旧書式1行スタイル)を返す。"""
     holes = []
-    if size == "ISOEnter":
-        # 縦向き 2u スタビ(90°回転)。大穴(ワイヤー側)が左(x=-8.225)
+    if size in ("ISOEnter", "ISOEnterFlip"):
+        # 縦向き 2u スタビ(90°回転)。大穴(ワイヤー側)が左(x=-8.225)。
+        # ステム位置 y=±11.938 は上下対称なので ISOEnterFlip でも同一
         for y in (-STAB_X_OFFSET[2.0], STAB_X_OFFSET[2.0]):
             holes.append((STAB_SMALL[0], -STAB_SMALL[1], y))
             holes.append((STAB_LARGE[0], -STAB_LARGE[1], y))
@@ -428,10 +433,13 @@ def make_variant(base_text, base_name, suffix, size, stab):
     # descr 追記
     if size == "ISOEnter":
         cap = "Keycap: ISO Enter (courtyard)."
+    elif size == "ISOEnterFlip":
+        cap = ("Keycap: ISO Enter flipped upside down"
+               " (courtyard only; switch orientation unchanged).")
     else:
         cap = f"Keycap: {suffix.split('_')[0]} (courtyard {size * U - SHRINK * 2:.2f}x19.00mm)."
     if stab == "mx":
-        if size == "ISOEnter":
+        if size in ("ISOEnter", "ISOEnterFlip"):
             cap += (" Cherry MX PCB-mount stabilizer holes included"
                     " (vertical 2u, wire side at x=-8.255).")
         else:
@@ -447,7 +455,8 @@ def make_variant(base_text, base_name, suffix, size, stab):
                 " (Edge.Cuts) and plate cuts on User.5 (overlapping outlines;"
                 " union in plate CAD). Plate required."
                 " For Choc V2 / Gateron KS-33 only (not Choc V1).")
-    elif size == "ISOEnter" or (isinstance(size, float) and size >= STAB_MIN_SIZE):
+    elif (isinstance(size, str) and size.startswith("ISOEnter")) or (
+            isinstance(size, float) and size >= STAB_MIN_SIZE):
         cap += " No stabilizer PCB features."
         if "MX" in base_name:
             cap += " Plate-mount MX stabilizers can be used."
@@ -503,8 +512,10 @@ def main():
                 else:
                     variants.append((f"{w:.2f}u_ChocV2Stab", w, "chocv2"))
         variants.append(("ISOEnter", "ISOEnter", None))
+        variants.append(("ISOEnterFlip", "ISOEnterFlip", None))
         if is_mx:
             variants.append(("ISOEnter_MXPCBStab", "ISOEnter", "mx"))
+            variants.append(("ISOEnterFlip_MXPCBStab", "ISOEnterFlip", "mx"))
 
         for suffix, size, stab in variants:
             name, text = make_variant(base_text, base_name, suffix, size, stab)
