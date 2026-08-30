@@ -61,7 +61,7 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
     6.25u=±50 / 7u=±57.15mm。
     ISO Enter は縦 2u スタビ（90° 回転、大穴＝ワイヤー側が x=−8.255 の左側。
     逆向きに実装する場合は基板側でフットプリントを 180° 回転）
-  - **Kailh Choc 1350（V1）スタビ用 → `_ChocStab` 版**（Choc V1 対応ベース 15 種 ×
+  - **Kailh Choc 1350（V1）スタビ用 → `_ChocV1Stab` 版**（Choc V1 対応ベース 15 種 ×
     2.00u / 6.25u のみ = Kailh が製造しているサイズ）。丸穴ではなく
     **PCB の角丸スロット切り欠き 4 個（`Edge.Cuts`）+ プレート必須**という方式。
     本体スロット 5.3×5.5mm + ワイヤースロット 4.0×3.5mm（角 R0.5）、
@@ -81,7 +81,7 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
 
 ### スイッチ × スタビライザー対応表
 
-| 実装するスイッチ | MX プレートマウント<br>→ サフィックス無し | MX PCB マウント<br>→ `_MXPCBStab` | Kailh Choc 1350 (V1)<br>→ `_ChocStab` | Kailh Choc V2<br>→ `_ChocV2Stab` |
+| 実装するスイッチ | MX プレートマウント<br>→ サフィックス無し | MX PCB マウント<br>→ `_MXPCBStab` | Kailh Choc 1350 (V1)<br>→ `_ChocV1Stab` | Kailh Choc V2<br>→ `_ChocV2Stab` |
 |---|---|---|---|---|
 | Cherry MX | ○ | ○ | ✕ | ✕ |
 | Cherry MX Low Profile | △ 高さ互換未検証 | △ 高さ互換未検証 | ✕ | ✕ |
@@ -95,7 +95,7 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
 - Hybrid ベースはスイッチ穴こそ MX / Choc 両対応だが、**スタビ付きキーは
   バリアント選択時点でどちらで組むか決める必要がある**（2u では MX NPTH 穴と
   Choc スロットが幾何的に共存できない）。Choc 側の可能性を残したい場合は
-  `_ChocStab` / `_ChocV2Stab` を選ぶ（MX で組むときはプレートマウント MX スタビが
+  `_ChocV1Stab` / `_ChocV2Stab` を選ぶ（MX で組むときはプレートマウント MX スタビが
   併用可能。`_MXPCBStab` を選ぶと Choc ビルドでのスタビ手段が無くなる）
 - MX スタビ用のプレート開口（Cherry 仕様カット）線は現状未提供。プレート
   マウント・PCB マウントとも Cherry スタイルのカットが必要になる点に注意

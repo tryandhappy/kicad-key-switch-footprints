@@ -13,7 +13,7 @@ variants-mx-choc.pretty(MX×Choc ハイブリッド) / variants-gateron.pretty(G
 - 2u 以上は Cherry MX PCB マウントスタビ穴付きの `_MXPCBStab` 版も生成
   (MX 系ベースのみ。MX のプレートマウントスタビは PCB 側に要素不要なので
    プレーン版がそのまま対応)
-- Choc V1 対応ベースには Kailh Choc 1350(V1)スタビ用の `_ChocStab` 版も生成
+- Choc V1 対応ベースには Kailh Choc 1350(V1)スタビ用の `_ChocV1Stab` 版も生成
   (2u / 6.25u のみ = Kailh が製造しているサイズ。PCB は丸穴ではなく
    角丸スロット 4 個の切り欠き(Edge.Cuts)+ プレート必須。
    プレートカット線は User.5。Choc V1 スイッチ専用で V2 とは非互換)
@@ -374,7 +374,7 @@ def make_variant(base_text, base_name, suffix, size, stab):
         if "MX" in base_name:
             cap += " Plate-mount MX stabilizers can be used."
         if "Choc_V1" in base_name and size in CHOC_STAB_X:
-            cap += " For Kailh Choc 1350 (V1) stabilizers use the _ChocStab variant."
+            cap += " For Kailh Choc 1350 (V1) stabilizers use the _ChocV1Stab variant."
         if (("Choc_V2" in base_name or "V1V2" in base_name
              or "Gateron" in base_name) and size in CHOC_V2_STAB_X):
             cap += " For Kailh Choc V2 stabilizers use the _ChocV2Stab variant."
@@ -414,7 +414,7 @@ def main():
             if is_mx and w >= STAB_MIN_SIZE and w in STAB_X_OFFSET:
                 variants.append((f"{w:.2f}u_MXPCBStab", w, "mx"))
             if is_choc_v1 and w in CHOC_STAB_X:
-                variants.append((f"{w:.2f}u_ChocStab", w, "choc"))
+                variants.append((f"{w:.2f}u_ChocV1Stab", w, "choc"))
             if (is_choc_v2 or is_gateron) and w in CHOC_V2_STAB_X:
                 # ホットスワップ系はソケットパッドが V2 スロットと物理干渉する
                 # ため生成しない(スロットがパッドを切り欠いてしまう)
