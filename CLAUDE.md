@@ -45,6 +45,8 @@
   33 ベースを冪等に書き換え、descr も更新。実行後は generate_variants.py で _Diode/variants を再生成)。
   外端 ±9.0 なので `_MXPCBStab` 2u 系のスタビ開口(x=±8.563)と 0.44mm 重なる(既知・許容、プレート CAD で union)。
   参考写真は `docs/plate-corner-relief-sample.jpeg`(Waveshare ScreenKey Module 付属プレート)
+  **想定プレート構成**: 1.2mm 厚 FR4 プレート + プレート下面〜PCB 上面の隙間 1.0mm(上面〜PCB 2.2mm。Choc V1/V2・Gateron LP 向け)。
+  MX は Cherry 規定 1.5mm/5.0mm でこの構成では組めない(別スタック)
 - **User.5**: スタビ用プレートカット線(`_MXPCBStab` / `_ChocV1Stab` / `_ChocV2Stab` バリアントのみ)
 - 各ファイルの `descr` にレイヤ⇄用途の対応を記載する
 - `.kicad_mod` は新旧2書式が混在(旧: 20221018/tstamp/fp_text value が29ファイル、新: 20241229/uuid/property "Value" が4ファイル)。一括処理は正規表現の1行前提を避け、括弧対応カウントでブロック抽出する
