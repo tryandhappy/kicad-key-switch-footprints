@@ -4,6 +4,11 @@
 `single.pretty/`(片面実装。手書き28+生成 `_Diode` 27)+`double.pretty/`(両面実装5)がベース本体、
 `preview/*.svg` が README 用のプレビュー画像(ベース33+`_Diode` 27)。リポジトリ直下はライブラリではない。
 `symbols/key-switch-diode.kicad_sym` は `_Diode` フットプリント用の一体シンボル(手書き)。
+`docs/` は README から参照する参考写真(プレート実物など)。
+
+**生成物を伴う変更の再生成順**: `python3 scripts/plate_cut_lines.py`(User.2〜4 を変えた時のみ)→
+`python3 scripts/generate_variants.py`(_Diode と variants)→ プレビュー SVG 再生成(下記)。
+再実行のたびに tstamp/uuid が振り直されるので、定数を変えずに実行しても差分が出る。
 
 ## 構成とレイヤ規約
 
