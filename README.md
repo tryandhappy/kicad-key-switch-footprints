@@ -2,18 +2,39 @@
 
 This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboard switches, released under the [CERN-OHL-P v2](/LICENSE).
 
-## ★ このフォーク限定: プレートのカット線（上流には無い。2026-08-29）
+## ★ このフォーク限定: プレートのカット線（上流には無い。2026-08-29、四隅リリーフ 2026-09-03）
 
 **33 個すべての `.kicad_mod` に、キーボードプレート加工用のカット線
-（`fp_rect`、原点中心、線幅 0.05mm）を追加してある。** 各ファイルには
+（原点中心、線幅 0.05mm）を追加してある。** 各ファイルには
 そのスイッチに該当するレイヤだけが入っている（`descr` フィールドにも同じ対応を記載）:
 
 | レイヤ | 開口 | 対象スイッチ | 入っているファイル |
 |---|---|---|---|
-| `User.1` | **15.60mm 角** | 化粧カバー（スイッチを掴まない。全スイッチ共通） | 全 33 ファイル |
-| `User.2` | **14.00mm 角** | **MX / MX Low Profile / Gateron Low Profile** | `SW_MX_*` `SW_Gateron_*`（21） |
-| `User.3` | **13.95mm 角** | **Kailh Choc V2（PG1353）** | `*Choc_V2*` `*Choc_V1V2*`（9） |
-| `User.4` | **13.80mm 角** | **Kailh Choc V1（PG1350）** | `*Choc_V1_*` `*Choc_V1V2*`（15） |
+| `User.1` | **15.60mm 角**（`fp_rect`） | 化粧カバー（スイッチを掴まない。全スイッチ共通） | 全 33 ファイル |
+| `User.2` | **14.00mm 角 + 四隅 R2.00 リリーフ** | **MX / MX Low Profile / Gateron Low Profile** | `SW_MX_*` `SW_Gateron_*`（21） |
+| `User.3` | **13.95mm 角 + 四隅 R2.00 リリーフ** | **Kailh Choc V2（PG1353）** | `*Choc_V2*` `*Choc_V1V2*`（9） |
+| `User.4` | **13.80mm 角 + 四隅 R2.00 リリーフ** | **Kailh Choc V1（PG1350）** | `*Choc_V1_*` `*Choc_V1V2*`（15） |
+
+- **四隅リリーフ（dogbone）**: スイッチ保持用の `User.2/3/4` は、正方形の各角を中心に
+  半径 2.00mm の円を対角外側へはみ出させた一体外形（直線 4 本 + 270° 円弧 4 本、
+  `fp_line` + `fp_arc`）。FR4 などルーター加工のプレートは内角にビット半径
+  （JLCPCB 等で R1.0 前後）が残り、角がほぼピン角のスイッチハウジングが最後まで
+  座らないため、角に逃げを設ける。直線部は各辺 10.0mm（14.00 の場合）残るので
+  4 辺のツメによる保持は変わらない。市販例:
+  [Waveshare 0.85inch ScreenKey Module 付属プレート](docs/plate-corner-relief-sample.jpeg)
+  （[モジュール裏面](docs/waveshare-screenkey-module-back.jpeg)。目測では Ø2.5mm 程度）
+  - リリーフの外端は中心から ±9.00mm（14.00 角の場合）。19.05mm ピッチの隣接キーとの
+    間に残るプレートの梁は角付近で **1.05mm**（正方形なら 5.05mm）
+  - **`_MXPCBStab` の 2u 系スタビ開口（内側の辺 x=±8.563）と 0.44mm 重なる**ので、
+    プレート CAD 側で union するとスイッチ開口とスタビ開口が角でつながる。
+    Choc V2 スタビのワイヤー溝（y=7.58〜8.98）とも重なる（こちらは元から union 前提）。
+    Choc V1 スタビ開口とは重ならない（梁 1.3mm 以上）
+  - 半径は `scripts/plate_cut_lines.py` の `RELIEF_R` 1 か所。変更後
+    `python3 scripts/plate_cut_lines.py`（33 ベースを書き直す。冪等）→
+    `python3 scripts/generate_variants.py`（`_Diode` と variants を再生成）。
+    `RELIEF_R = 0` で以前の `fp_rect` 正方形に戻る。開口寸法（`PLATE_CUTS`）も同スクリプト
+  - `User.1`（化粧カバー）はスイッチを掴まないのでリリーフなし
+    （R2 を付けると 19.05mm ピッチで隣と重なる: 7.8+2.0=9.8 > 9.525）
 
 - **レイヤ＝プレート案の排他選択。** 書き出すレイヤを 1 つ選べばプレートの種類が決まる。
   ハイブリッド系のフットプリントには該当レイヤが複数入っているが、共存してよい
@@ -21,7 +42,8 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
   低背 2 種も開口は同じだが、推奨プレート厚が違う: Gateron LP は 1.2mm）
 - **★ 13.95 と 14.00 の差 0.05mm は JLCPCB のルーター公差（±0.2mm）より小さく、
   実物で区別できない可能性が高い。** 実物比較で差が出なければ V2 も 14.00 に寄せて
-  `User.3` を廃止してよい（緩くなる側なので安全）。値の変更は各ファイル数字 1 か所
+  `User.3` を廃止してよい（緩くなる側なので安全）。値の変更は
+  `scripts/plate_cut_lines.py` の `PLATE_CUTS` 1 か所 → 再実行
 - **出典**: Choc V1=13.80 / V2=13.95 は
   [cyril279/keyboards revlp/41_1353](https://github.com/cyril279/keyboards/blob/main/revlp/41_1353/README.md)、
   Gateron LP の 14.00 は公式データシートの取付図
@@ -29,9 +51,11 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
   [KS-33](https://www.gateron.co/pages/gateron-ks-33-low-profile-2-0-mechanical-switch-datasheet)）、
   Cherry MX LP が 14×14 に入ることは
   [Deskthority wiki](https://deskthority.net/wiki/Cherry_MX_Low_Profile)
-- **検証**: KiCad 10.0.5 の `kicad-cli fp export svg` で 33 ファイル全部のパースを確認済み。
-  DXF 書き出しは 20° 回転を含む配置で `User.1/2/3` から 15.600 / 14.000 / 13.950mm が
-  出ることを確認済み（線幅は書き出しに出ないので値は自由に変えてよい）
+- **検証**: KiCad 10.0.5 の `kicad-cli fp export svg` で 33 ファイル全部のパースと
+  リリーフ形状の描画を確認済み。DXF 書き出しは正方形時代（リリーフ追加前）に
+  20° 回転を含む配置で `User.1/2/3` から 15.600 / 14.000 / 13.950mm が出ることを
+  確認済み（線幅は書き出しに出ないので値は自由に変えてよい）。リリーフ付き外形の
+  DXF 書き出し（円弧の連結）は未確認
 - `preview/` の画像もカット線入りで再生成してある
   （`kicad-cli fp export svg` + 黒背景化。ベースは上流コミット `b4afad5`）
 

@@ -38,7 +38,13 @@
     自動スキップ(パッド円近似+裏面図形の線分サンプリング判定)。
     回路図は `symbols/key-switch-diode.kicad_sym` の SW_Key_Diode。ピン2/3は同一座標スタック=
     KiCadが接続扱い(置くだけで直列完成、PCBではパッド2→3の短い配線をラッツネストに従い引く)
-- **User.1〜User.4**: プレートカット線(User.1=15.60 化粧カバー / User.2=14.00 MX系 / User.3=13.95 Choc V2 / User.4=13.80 Choc V1)
+- **User.1〜User.4**: プレートカット線(User.1=15.60 化粧カバー / User.2=14.00 MX系 / User.3=13.95 Choc V2 / User.4=13.80 Choc V1)。
+  User.2〜4 は正方形+四隅 R2.00 コーナーリリーフ(dogbone。角中心の円を対角外側へ、fp_line 4+fp_arc 4 の一体外形。
+  ルーター加工プレートの内角Rでスイッチが座らない対策)。User.1 は fp_rect のまま(R2 だと19.05ピッチで隣と重なる)。
+  **User.2〜4 の図形は手編集せず `python3 scripts/plate_cut_lines.py` で書き直す**(半径 `RELIEF_R`・寸法 `PLATE_CUTS` が定数、
+  33 ベースを冪等に書き換え、descr も更新。実行後は generate_variants.py で _Diode/variants を再生成)。
+  外端 ±9.0 なので `_MXPCBStab` 2u 系のスタビ開口(x=±8.563)と 0.44mm 重なる(既知・許容、プレート CAD で union)。
+  参考写真は `docs/plate-corner-relief-sample.jpeg`(Waveshare ScreenKey Module 付属プレート)
 - **User.5**: スタビ用プレートカット線(`_MXPCBStab` / `_ChocV1Stab` / `_ChocV2Stab` バリアントのみ)
 - 各ファイルの `descr` にレイヤ⇄用途の対応を記載する
 - `.kicad_mod` は新旧2書式が混在(旧: 20221018/tstamp/fp_text value が29ファイル、新: 20241229/uuid/property "Value" が4ファイル)。一括処理は正規表現の1行前提を避け、括弧対応カウントでブロック抽出する
