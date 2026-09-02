@@ -27,7 +27,7 @@ LINE_W = 0.05
 # レイヤ → 開口の一辺 [mm]
 PLATE_CUTS = {"User.2": 14.00, "User.3": 13.95, "User.4": 13.80}
 # コーナーリリーフ半径 [mm](円の中心 = 開口の角)。0 でリリーフなし
-RELIEF_R = 2.00
+RELIEF_R = 1.00
 
 
 def relief_square_items(side, layer, new_format):

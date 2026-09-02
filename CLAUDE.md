@@ -39,11 +39,11 @@
     回路図は `symbols/key-switch-diode.kicad_sym` の SW_Key_Diode。ピン2/3は同一座標スタック=
     KiCadが接続扱い(置くだけで直列完成、PCBではパッド2→3の短い配線をラッツネストに従い引く)
 - **User.1〜User.4**: プレートカット線(User.1=15.60 化粧カバー / User.2=14.00 MX系 / User.3=13.95 Choc V2 / User.4=13.80 Choc V1)。
-  User.2〜4 は正方形+四隅 R2.00 コーナーリリーフ(dogbone。角中心の円を対角外側へ、fp_line 4+fp_arc 4 の一体外形。
-  ルーター加工プレートの内角Rでスイッチが座らない対策)。User.1 は fp_rect のまま(R2 だと19.05ピッチで隣と重なる)。
+  User.2〜4 は正方形+四隅 R1.00(Ø2.0)コーナーリリーフ(dogbone。角中心の円を対角外側へ、fp_line 4+fp_arc 4 の一体外形。
+  ルーター加工プレートの内角Rでスイッチが座らない対策)。User.1 は fp_rect のまま(化粧カバーはスイッチを掴まない)。
   **User.2〜4 の図形は手編集せず `python3 scripts/plate_cut_lines.py` で書き直す**(半径 `RELIEF_R`・寸法 `PLATE_CUTS` が定数、
   33 ベースを冪等に書き換え、descr も更新。実行後は generate_variants.py で _Diode/variants を再生成)。
-  外端 ±9.0 なので `_MXPCBStab` 2u 系のスタビ開口(x=±8.563)と 0.44mm 重なる(既知・許容、プレート CAD で union)。
+  外端 ±8.0。`_MXPCBStab` 2u 系のスタビ開口(x=±8.563)との梁は 0.56mm(重ならないが細い)。
   参考写真は `docs/plate-corner-relief-sample.jpeg`(Waveshare ScreenKey Module 付属プレート)
   **想定プレート構成**: 1.2mm 厚 FR4 プレート + プレート下面〜PCB 上面の隙間 1.0mm(上面〜PCB 2.2mm。Choc V1/V2・Gateron LP 向け)。
   MX は Cherry 規定 1.5mm/5.0mm でこの構成では組めない(別スタック)

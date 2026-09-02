@@ -11,34 +11,33 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
 | レイヤ | 開口 | 対象スイッチ | 入っているファイル |
 |---|---|---|---|
 | `User.1` | **15.60mm 角**（`fp_rect`） | 化粧カバー（スイッチを掴まない。全スイッチ共通） | 全 33 ファイル |
-| `User.2` | **14.00mm 角 + 四隅 R2.00 リリーフ** | **MX / MX Low Profile / Gateron Low Profile** | `SW_MX_*` `SW_Gateron_*`（21） |
-| `User.3` | **13.95mm 角 + 四隅 R2.00 リリーフ** | **Kailh Choc V2（PG1353）** | `*Choc_V2*` `*Choc_V1V2*`（9） |
-| `User.4` | **13.80mm 角 + 四隅 R2.00 リリーフ** | **Kailh Choc V1（PG1350）** | `*Choc_V1_*` `*Choc_V1V2*`（15） |
+| `User.2` | **14.00mm 角 + 四隅 R1.00 リリーフ** | **MX / MX Low Profile / Gateron Low Profile** | `SW_MX_*` `SW_Gateron_*`（21） |
+| `User.3` | **13.95mm 角 + 四隅 R1.00 リリーフ** | **Kailh Choc V2（PG1353）** | `*Choc_V2*` `*Choc_V1V2*`（9） |
+| `User.4` | **13.80mm 角 + 四隅 R1.00 リリーフ** | **Kailh Choc V1（PG1350）** | `*Choc_V1_*` `*Choc_V1V2*`（15） |
 
 - **四隅リリーフ（dogbone）**: スイッチ保持用の `User.2/3/4` は、正方形の各角を中心に
-  半径 2.00mm の円を対角外側へはみ出させた一体外形（直線 4 本 + 270° 円弧 4 本、
+  半径 1.00mm（Ø2.0）の円を対角外側へはみ出させた一体外形（直線 4 本 + 270° 円弧 4 本、
   `fp_line` + `fp_arc`）。FR4 などルーター加工のプレートは内角にビット半径
   （JLCPCB 等で R1.0 前後）が残り、角がほぼピン角のスイッチハウジングが最後まで
-  座らないため、角に逃げを設ける。直線部は各辺 10.0mm（14.00 の場合）残るので
+  座らないため、角に逃げを設ける。直線部は各辺 12.0mm（14.00 の場合）残るので
   4 辺のツメによる保持は変わらない。市販例:
   [Waveshare 0.85inch ScreenKey Module 付属プレート](docs/plate-corner-relief-sample.jpeg)
-  （[モジュール裏面](docs/waveshare-screenkey-module-back.jpeg)。目測では Ø2.5mm 程度）
-  - リリーフの外端は中心から ±9.00mm（14.00 角の場合）。19.05mm ピッチの隣接キーとの
-    間に残るプレートの梁は角付近で **1.05mm**（正方形なら 5.05mm）
-  - **`_MXPCBStab` の 2u 系スタビ開口（内側の辺 x=±8.563）と 0.44mm 重なる**ので、
-    プレート CAD 側で union するとスイッチ開口とスタビ開口が角でつながる。
-    Choc V2 スタビのワイヤー溝（y=7.58〜8.98）とも重なる（こちらは元から union 前提）。
-    Choc V1 スタビ開口とは重ならない（梁 1.3mm 以上）
+  （[モジュール裏面](docs/waveshare-screenkey-module-back.jpeg)。実測 Ø2.0mm 程度）
+  - リリーフの外端は中心から ±8.00mm（14.00 角の場合）。19.05mm ピッチの隣接キーとの
+    間に残るプレートの梁は角付近で **3.05mm**（正方形なら 5.05mm）
+  - `_MXPCBStab` の 2u 系スタビ開口（内側の辺 x=±8.563）とは重ならないが、間の梁は
+    角付近で **0.56mm** と細い（正方形なら 1.56mm）。Choc V2 スタビのワイヤー溝
+    （y=7.58〜8.98）とは 0.4mm 重なる（こちらは元から union 前提）。
+    Choc V1 スタビ開口とは重ならない（梁 2.3mm 以上）
   - 半径は `scripts/plate_cut_lines.py` の `RELIEF_R` 1 か所。変更後
     `python3 scripts/plate_cut_lines.py`（33 ベースを書き直す。冪等）→
     `python3 scripts/generate_variants.py`（`_Diode` と variants を再生成）。
     `RELIEF_R = 0` で以前の `fp_rect` 正方形に戻る。開口寸法（`PLATE_CUTS`）も同スクリプト
-  - `User.1`（化粧カバー）はスイッチを掴まないのでリリーフなし
-    （R2 を付けると 19.05mm ピッチで隣と重なる: 7.8+2.0=9.8 > 9.525）
+  - `User.1`（化粧カバー）はスイッチを掴まない（上部ハウジングの角は丸い）のでリリーフなし
 - **想定プレート構成（このフォークの設計前提、2026-09-03）**: プレートは **1.2mm 厚 FR4 基板**、
   **プレート下面と PCB 上面の隙間 1.0mm**（プレート上面から PCB 上面まで 2.2mm）。
   Kailh Choc V1/V2 の規定（1.3mm プレート + 0.9mm = 2.2mm）と Gateron LP（推奨 1.2mm プレート）
-  向けの構成。1.05mm の梁も 1.2mm FR4 で許容と判断。
+  向けの構成。
   **MX（Cherry 規定: 1.5mm プレート、プレート上面〜PCB 5.0mm）はこの構成では組めない**
   （MX の下部ハウジングが PCB に当たるため 3.8mm の隙間が必要。1.2mm プレートは
   ツメの掛かりが 0.3mm 浅くなる）。MX 用プレートは別スタック
