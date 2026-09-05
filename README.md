@@ -68,9 +68,9 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
 ## ★ このフォーク限定: キーキャップサイズバリアント `variants-*.pretty`（2026-08-30）
 
 **`single.pretty/` + `double.pretty/` の 33 ベースフットプリントから、
-キーキャップサイズ別のバリアント（1268 ファイル）をスイッチ種別の
-4 ライブラリに自動生成してある**（`variants-mx` 550 / `variants-choc` 406 /
-`variants-mx-choc` 220 / `variants-gateron` 92。それぞれ別ライブラリとして登録）。
+キーキャップサイズ別のバリアント（1528 ファイル）をスイッチ種別の
+4 ライブラリに自動生成してある**（`variants-mx` 638 / `variants-choc` 506 /
+`variants-mx-choc` 268 / `variants-gateron` 116。それぞれ別ライブラリとして登録）。
 再生成は `python3 scripts/generate_variants.py`。
 
 - **ベース（直下 33 ファイル）= キーキャップなし**。コートヤードはスイッチ単体の
@@ -81,8 +81,19 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
   19.05mm ピッチで隣接するキー同士は誤検出しない
 - **命名**: `<ベース名>_<サイズ>[_<スタビ>][_Diode]` 。サイズは
   `1.00u` `1.25u` `1.50u` `1.75u` `2.00u` `2.25u` `2.75u` `3.00u` `4.50u`
-  `6.00u` `6.25u` `6.50u` `7.00u` `ISOEnter` `ISOEnterFlip`（ISO Enter の上下反転。キーキャップ外形のみ反転、スイッチとスタビの向きはそのまま）。
+  `6.00u` `6.25u` `6.50u` `7.00u` `ISOEnter` `ISOEnterFlip`（ISO Enter の上下反転。キーキャップ外形のみ反転、スイッチとスタビの向きはそのまま）、
+  および縦向きの `1.25u_Vertical` `1.50u_Vertical` `2.00u_Vertical`（幅 1u × 高さ N u。
+  テンキーの Enter / + / 0 など。次項）。
   `_Diode` は裏面 SMD ダイオードパッド付き（次節）
+- **縦向きキー `_Vertical`**（2026-09-06 追加）: コートヤードは 19.00 × (N×19.05−0.05) mm。
+  `2.00u_Vertical` には各スタビ版（`_MXPCBStab` / `_ChocV1Stab` / `_ChocV2Stab`）もあり、
+  スタビ要素（NPTH 穴・スロット・`User.5` カット線）を ISO Enter と同じ向きに
+  90° 回転（(x,y)→(−y,x)）して配置してある。ワイヤー側は
+  MX = 左（大穴 x=−8.255）/ Choc V2 = 左（ワイヤー溝 x=−8.28）/ Choc V1 = 右（x=+7.25）。
+  逆向きに実装したい場合は基板側でフットプリントを 180° 回転する。
+  縦向きではスタビ要素がスイッチ本体の上下（|y| ≥ 8.75）に来るため、横向き 2u では
+  ソケットパッドと干渉して生成できなかったホットスワップ系の `_ChocV2Stab` も
+  縦向きなら生成される（干渉チェックで自動判定。全層の図形・パッドとの干渉なしを確認済み）
 - **スタビライザー**（2u 以上と ISO Enter）:
   - **サフィックス無し版 = スタビ用の PCB 要素なし**。MX のプレートマウントスタビは
     そのまま使える
@@ -111,7 +122,8 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
     突出 4.55×6.25 + ワイヤー溝 全幅×1.4mm、角 R0.5、kb-plategen 準拠。
     3 種の角丸矩形は互いに重なるのでプレート CAD 側で union する）。
     ホットスワップ系ベースはソケットパッドがスロットと物理干渉するため
-    生成対象外（THT 系 6 種のみ。生成スクリプトの干渉チェックで自動判定）
+    横向き 2u では生成対象外（THT 系 6 種のみ。生成スクリプトの干渉チェックで自動判定。
+    縦向き `2.00u_Vertical_ChocV2Stab` は干渉しないためホットスワップ系を含む 12 種）
   - **6.50u は PCB マウントスタビの標準規格が無い**（kiswitch / marbastlib にも無い）
     ため `_MXPCBStab` 版は生成していない
 
@@ -148,7 +160,7 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
   kiswitch 準拠
 - **注意**: キーキャップ範囲のコートヤードは、キャップ下に置くダイオード等も
   DRC エラーにする。物理的に問題ない配置は KiCad 側で除外指定するか、ベース版を使う
-- **検証**: KiCad 10.0.5 の `kicad-cli fp export svg` で 1268 ファイル全部のパースを
+- **検証**: KiCad 10.0.5 の `kicad-cli fp export svg` で 1528 ファイル全部のパースを
   確認済み。コートヤード寸法・スタビ穴座標はスクリプトで機械チェック済み。
   プレビュー画像はベース 33 + `_Diode` ベース 27 のみ
   （バリアントは枚数が膨大なため生成しない）
@@ -201,10 +213,10 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
 |---|---|---|
 | `single.pretty/` | **片面実装**ベース（`_alt*` の片面版・`_nSilk`・`_swap` を含む） | 55（手書き 28 + 生成 `_Diode` 27） |
 | `double.pretty/` | **両面実装**ベース＝リバーシブル基板用（`_double`、その `_alt1/_alt2` を含む） | 5 |
-| `variants-mx.pretty/` | バリアント: MX 純系（ハイブリッド除く。生成物） | 550 |
-| `variants-choc.pretty/` | バリアント: Choc 純系（V1 / V2 / Choc V1V2 ハイブリッド。生成物） | 406 |
-| `variants-mx-choc.pretty/` | バリアント: MX × Choc ハイブリッド（生成物） | 220 |
-| `variants-gateron.pretty/` | バリアント: Gateron Low Profile（生成物） | 92 |
+| `variants-mx.pretty/` | バリアント: MX 純系（ハイブリッド除く。生成物） | 638 |
+| `variants-choc.pretty/` | バリアント: Choc 純系（V1 / V2 / Choc V1V2 ハイブリッド。生成物） | 506 |
+| `variants-mx-choc.pretty/` | バリアント: MX × Choc ハイブリッド（生成物） | 268 |
+| `variants-gateron.pretty/` | バリアント: Gateron Low Profile（生成物） | 116 |
 
 このほか `symbols/key-switch-diode.kicad_sym`（`_Diode` フットプリント用の
 スイッチ＋ダイオード一体シンボル `SW_Key_Diode`）をシンボルライブラリとして登録できる。

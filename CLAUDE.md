@@ -17,11 +17,15 @@
   **`*_Diode.kicad_mod` は生成物**(手編集禁止。`_Diode` はスクリプトの予約サフィックスで、
   再生成時に削除されるため手書きベース名に使ってはいけない)
 - **`variants-*.pretty/`(生成物、スイッチ種別で4ライブラリ)**: キーキャップサイズ別バリアント。
-  variants-mx(MX純系550) / variants-choc(Choc純系406) / variants-mx-choc(MX×Chocハイブリッド220) /
-  variants-gateron(Gateron LP 92)。
+  variants-mx(MX純系638) / variants-choc(Choc純系506) / variants-mx-choc(MX×Chocハイブリッド268) /
+  variants-gateron(Gateron LP 116)。
   再生成は `python3 scripts/generate_variants.py`(全削除→再生成。手編集禁止、直すのはスクリプト側)
   - コートヤード = キーキャップ範囲。外縁は公称(w×19.05×19.05)より各辺0.025mm控え
     (1u なら中心線±9.475・線幅0.05で外縁19.00mm角)。19.05mmピッチの隣接キーと誤DRCしないため
+  - `_Vertical` = 縦向きキーキャップ(幅1u×高さ1.25/1.5/2u。`VERTICAL_SIZES`)。2uにはスタビ版もあり、
+    スタビ要素は ISO Enter と同じ 90°回転 `rot()`=(x,y)→(−y,x)(ワイヤー側: MX/Choc V2=左、Choc V1=右)。
+    縦ではスロットがスイッチ本体の上下に来るため、横で干渉スキップされるホットスワップ系の
+    `_ChocV2Stab` も縦なら生成される(干渉チェック判定)
   - `_MXPCBStab` = Cherry MX PCBマウントスタビのNPTH穴付き(MX系ベースのみ。ステム間隔はkiswitch、
     穴y座標(小−6.985/大+8.255=15.24mm間隔)と4.5uはmarbastlib準拠、詳細はREADMEのフォーク限定節)。
     スタビ用プレートカット線をUser.5に持つ(6.75×14 中心y=+1、kb-plategen "Normal"準拠、

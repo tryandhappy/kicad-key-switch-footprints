@@ -10,6 +10,10 @@ variants-mx-choc.pretty(MX×Choc ハイブリッド) / variants-gateron.pretty(G
 - コートヤードをキーキャップ占有範囲に置換
   (外縁 = 公称キーキャップ範囲より各辺 0.025mm 控え。
    19.05mm ピッチで隣接キー同士が誤 DRC エラーにならないため)
+- 縦向きキーキャップ(テンキーの Enter / + など)の `_Vertical` 版も生成
+  (1.25u / 1.5u / 2u。2u にはスタビ版も。スタビ要素は ISO Enter と同じ
+   90°回転 (x,y)→(-y,x) で、ワイヤー側は MX/Choc V2 = 左(x 負)、
+   Choc V1 = 右(x 正))
 - 2u 以上は Cherry MX PCB マウントスタビ穴付きの `_MXPCBStab` 版も生成
   (MX 系ベースのみ。MX のプレートマウントスタビは PCB 側に要素不要なので
    プレーン版がそのまま対応。スタビ用プレートカット線は User.5 に持ち、
@@ -68,6 +72,8 @@ LINE_W = 0.05      # コートヤード線幅 [mm]
 
 # 通常(矩形)キーキャップの幅 [u]
 REGULAR_SIZES = [1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.75, 3.0, 4.5, 6.0, 6.25, 6.5, 7.0]
+# 縦向きキーキャップの高さ [u](幅は 1u)。テンキーの Enter / + / 0 など
+VERTICAL_SIZES = [1.25, 1.5, 2.0]
 
 # Cherry MX PCB マウントスタビ (ステム間隔は kiswitch StabilizerCherryMX、
 # 穴の y と 4.5u は marbastlib STAB_MX_* 準拠)
@@ -192,8 +198,15 @@ def new_uuid():
     return str(uuid.uuid4())
 
 
-def courtyard_items(size, layers):
-    """サイズに応じたコートヤード図形(旧書式1行スタイル)を返す。"""
+def rot(x, y):
+    """横向き基準の座標を縦向き(90°回転)へ写す: (x, y) -> (-y, x)。
+    ISO Enter のスタビと同じ向き。横向きで y 正(下)にあった要素は x 負(左)へ。"""
+    return (-y, x)
+
+
+def courtyard_items(size, layers, vertical=False):
+    """サイズに応じたコートヤード図形(旧書式1行スタイル)を返す。
+    vertical=True は幅 1u × 高さ size u。"""
     items = []
     for layer in layers:
         if size in ("ISOEnter", "ISOEnterFlip"):
@@ -215,6 +228,8 @@ def courtyard_items(size, layers):
         else:
             hx = round(size * U / 2 - SHRINK - LINE_W / 2, 6)
             hy = round(U / 2 - SHRINK - LINE_W / 2, 6)
+            if vertical:
+                hx, hy = hy, hx
             items.append(
                 f'(fp_rect (start {-hx} {-hy}) (end {hx} {hy})'
                 f' (stroke (width {LINE_W}) (type solid))'
@@ -223,11 +238,12 @@ def courtyard_items(size, layers):
     return items
 
 
-def choc_stab_items(size):
+def choc_stab_items(size, vertical=False):
     """Kailh Choc 1350 スタビの PCB スロット+プレートカット線を返す。
 
     CHOC_STAB_SEGMENTS(2u 基準)を、ステム中心の差分だけ左右対称に
-    外側へシフトし、左側は x を反転して生成する。
+    外側へシフトし、左側は x を反転して生成する。vertical=True は
+    さらに全体を 90°回転する(回転は円弧の向きを保つので start/end は不変)。
     """
     shift = CHOC_STAB_X[size] - CHOC_STAB_BASE_X
     items = []
@@ -235,7 +251,10 @@ def choc_stab_items(size):
         for mirror in (1, -1):
             pts = []
             for x, y in zip(coords[0::2], coords[1::2]):
-                pts.append((round(mirror * (x + shift), 6), y))
+                px, py = mirror * (x + shift), y
+                if vertical:
+                    px, py = rot(px, py)
+                pts.append((round(px, 6), round(py, 6)))
             if kind == "line":
                 (x1, y1), (x2, y2) = pts
                 items.append(
@@ -289,22 +308,32 @@ def rounded_rect_items(cx, cy, w, h, layer, lw, r=0.5):
     return items
 
 
-def mx_plate_cut_items(size):
-    """Cherry MX スタビ用プレートカット線(User.5)を返す。ISO Enter は 90°回転。"""
+def mx_plate_cut_items(size, vertical=False):
+    """Cherry MX スタビ用プレートカット線(User.5)を返す。
+    ISO Enter と _Vertical は 90°回転(rot)。"""
     w, h, cy = MX_PLATE_CUT
-    items = []
     if size in ("ISOEnter", "ISOEnterFlip"):
-        # 縦 2u スタビ。stab_holes と同じ回転: (x,y) -> (-y, x)
-        # (縦スタビは上下対称なので ISOEnterFlip でも同一配置)
-        for y in (-STAB_X_OFFSET[2.0], STAB_X_OFFSET[2.0]):
-            items += rounded_rect_items(-cy, y, h, w, "User.5", 0.05)
-    else:
-        for x in (-STAB_X_OFFSET[size], STAB_X_OFFSET[size]):
+        # 縦 2u スタビ(縦スタビは上下対称なので ISOEnterFlip でも同一配置)
+        size, vertical = 2.0, True
+    items = []
+    for x in (-STAB_X_OFFSET[size], STAB_X_OFFSET[size]):
+        if vertical:
+            rx, ry = rot(x, cy)
+            items += rounded_rect_items(rx, ry, h, w, "User.5", 0.05)
+        else:
             items += rounded_rect_items(x, cy, w, h, "User.5", 0.05)
     return items
 
 
-def choc_v2_plate_items(size):
+def rounded_rect_at(cx, cy, w, h, layer, lw, vertical):
+    """横向き基準の角丸矩形を、vertical なら rot で 90°回転して返す。"""
+    if vertical:
+        cx, cy = rot(cx, cy)
+        w, h = h, w
+    return rounded_rect_items(cx, cy, w, h, layer, lw)
+
+
+def choc_v2_plate_items(size, vertical=False):
     """Kailh Choc V2 スタビ用プレートカット線(User.5)を返す。
 
     kb-plategen の 3 プリミティブ(本体・突出・ワイヤー溝)をそのまま描く。
@@ -314,57 +343,62 @@ def choc_v2_plate_items(size):
     items = []
     for mirror in (1, -1):
         for w, h, cy in CHOC_V2_PLATE_PARTS:
-            items += rounded_rect_items(mirror * x, cy, w, h, "User.5", 0.05)
+            items += rounded_rect_at(mirror * x, cy, w, h, "User.5", 0.05, vertical)
     wh, wy = CHOC_V2_PLATE_WIRE
-    items += rounded_rect_items(0, wy, 2 * x, wh, "User.5", 0.05)
+    items += rounded_rect_at(0, wy, 2 * x, wh, "User.5", 0.05, vertical)
     return items
 
 
-def choc_v2_stab_items(size):
+def choc_v2_stab_items(size, vertical=False):
     """Kailh Choc V2 スタビの PCB スロット(fp_rect, Edge.Cuts)を返す。"""
-    hw, hh = CHOC_V2_STAB_HALF
     items = []
-    for mirror in (1, -1):
-        cx = mirror * CHOC_V2_STAB_X[size]
+    for x1, y1, x2, y2 in choc_v2_stab_slot_rects(size, vertical):
         items.append(
-            f'(fp_rect (start {round(cx - hw, 6)} {-hh}) (end {round(cx + hw, 6)} {hh})'
+            f'(fp_rect (start {round(x1, 6)} {round(y1, 6)})'
+            f' (end {round(x2, 6)} {round(y2, 6)})'
             f' (stroke (width 0.12) (type solid)) (fill none)'
             f' (layer "Edge.Cuts") (tstamp {new_uuid()}))'
         )
     return items
 
 
-def choc_v2_stab_slot_rects(size):
+def rot_rect(rect):
+    """矩形 (x1, y1, x2, y2) を rot で 90°回転し、正規化して返す。"""
+    x1, y1, x2, y2 = rect
+    (ax, ay), (bx, by) = rot(x1, y1), rot(x2, y2)
+    return (min(ax, bx), min(ay, by), max(ax, bx), max(ay, by))
+
+
+def choc_v2_stab_slot_rects(size, vertical=False):
     """Choc V2 スタビの PCB スロット矩形 (x1, y1, x2, y2) を返す(干渉チェック用)。"""
     hw, hh = CHOC_V2_STAB_HALF
     x = CHOC_V2_STAB_X[size]
-    return [(m * x - hw, -hh, m * x + hw, hh) for m in (1, -1)]
+    rects = [(m * x - hw, -hh, m * x + hw, hh) for m in (1, -1)]
+    return [rot_rect(r) for r in rects] if vertical else rects
 
 
-def choc_stab_slot_rects(size):
+def choc_stab_slot_rects(size, vertical=False):
     """Choc スタビの PCB スロットの外接矩形 (x1, y1, x2, y2) を返す(干渉チェック用)。"""
     x = CHOC_STAB_X[size]
     rects = []
     for cx, cy, hw, hh in ((x, -0.45, 2.65, 2.75), (x, -7.25, 2.0, 1.75)):
         for mirror in (1, -1):
             rects.append((mirror * cx - hw, cy - hh, mirror * cx + hw, cy + hh))
-    return rects
+    return [rot_rect(r) for r in rects] if vertical else rects
 
 
-def stab_holes(size):
-    """Cherry MX PCB マウントスタビの NPTH パッド(旧書式1行スタイル)を返す。"""
-    holes = []
+def stab_holes(size, vertical=False):
+    """Cherry MX PCB マウントスタビの NPTH パッド(旧書式1行スタイル)を返す。
+    ISO Enter と _Vertical は 90°回転(rot)。大穴(ワイヤー側)が左(x=-8.255)。"""
     if size in ("ISOEnter", "ISOEnterFlip"):
-        # 縦向き 2u スタビ(90°回転)。大穴(ワイヤー側)が左(x=-8.225)。
-        # ステム位置 y=±11.938 は上下対称なので ISOEnterFlip でも同一
-        for y in (-STAB_X_OFFSET[2.0], STAB_X_OFFSET[2.0]):
-            holes.append((STAB_SMALL[0], -STAB_SMALL[1], y))
-            holes.append((STAB_LARGE[0], -STAB_LARGE[1], y))
-    else:
-        off = STAB_X_OFFSET[size]
-        for x in (-off, off):
-            holes.append((STAB_SMALL[0], x, STAB_SMALL[1]))
-            holes.append((STAB_LARGE[0], x, STAB_LARGE[1]))
+        # 縦向き 2u スタビ。ステム位置 y=±11.938 は上下対称なので ISOEnterFlip でも同一
+        size, vertical = 2.0, True
+    holes = []
+    off = STAB_X_OFFSET[size]
+    for x in (-off, off):
+        for d, y in (STAB_SMALL, STAB_LARGE):
+            hx, hy = rot(x, y) if vertical else (x, y)
+            holes.append((d, round(hx, 6), round(hy, 6)))
     return [
         f'(pad "" np_thru_hole circle (at {x} {y}) (size {d} {d}) (drill {d})'
         f' (layers "*.Cu" "*.Mask") (tstamp {new_uuid()}))'
@@ -535,10 +569,12 @@ def check_slot_clearance(base_name, s, rects):
                       f"既存パッド({px},{py})の間隔が {dist - pr:.2f}mm")
 
 
-def make_variant(base_text, base_name, suffix, size, stab, diode=None):
+def make_variant(base_text, base_name, suffix, size, stab, diode=None,
+                 vertical=False):
     """stab: None(スタビ要素なし) / "mx"(Cherry MX PCB 穴) /
     "choc"(Choc V1 スロット) / "chocv2"(Choc V2 スロット)
-    diode: None / DIODE_PLACEMENT の (cx, cy, vertical)(裏面 SMD ダイオード)"""
+    diode: None / DIODE_PLACEMENT の (cx, cy, vertical)(裏面 SMD ダイオード)
+    vertical: True で縦向きキーキャップ(幅 1u × 高さ size u。スタビ要素も 90°回転)"""
     name = f"{base_name}_{suffix}"
     s = base_text
 
@@ -556,17 +592,18 @@ def make_variant(base_text, base_name, suffix, size, stab, diode=None):
         s = s[:a] + s[b:]
     s = re.sub(r"\n[ \t]*\n", "\n", s)
 
-    inserts = courtyard_items(size, sorted(set(layers)))
+    inserts = courtyard_items(size, sorted(set(layers)), vertical)
     if stab == "mx":
-        holes = stab_holes(size)
+        holes = stab_holes(size, vertical)
         check_stab_clearance(name, s, holes)
-        inserts += holes + mx_plate_cut_items(size)
+        inserts += holes + mx_plate_cut_items(size, vertical)
     elif stab == "choc":
-        check_slot_clearance(name, s, choc_stab_slot_rects(size))
-        inserts += choc_stab_items(size)
+        check_slot_clearance(name, s, choc_stab_slot_rects(size, vertical))
+        inserts += choc_stab_items(size, vertical)
     elif stab == "chocv2":
-        check_slot_clearance(name, s, choc_v2_stab_slot_rects(size))
-        inserts += choc_v2_stab_items(size) + choc_v2_plate_items(size)
+        check_slot_clearance(name, s, choc_v2_stab_slot_rects(size, vertical))
+        inserts += (choc_v2_stab_items(size, vertical)
+                    + choc_v2_plate_items(size, vertical))
     if diode:
         inserts += diode_items(*diode)
 
@@ -584,12 +621,16 @@ def make_variant(base_text, base_name, suffix, size, stab, diode=None):
     elif size == "ISOEnterFlip":
         cap = ("Keycap: ISO Enter flipped upside down"
                " (courtyard only; switch orientation unchanged).")
+    elif vertical:
+        cap = (f"Keycap: {suffix.split('_')[0]} vertical (1u wide x {size:g}u tall,"
+               f" courtyard 19.00x{size * U - SHRINK * 2:.2f}mm).")
     else:
         cap = f"Keycap: {suffix.split('_')[0]} (courtyard {size * U - SHRINK * 2:.2f}x19.00mm)."
     if stab == "mx":
-        if size in ("ISOEnter", "ISOEnterFlip"):
+        if size in ("ISOEnter", "ISOEnterFlip") or vertical:
             cap += (" Cherry MX PCB-mount stabilizer holes included"
-                    " (vertical 2u, wire side at x=-8.255).")
+                    f" (vertical {2.0 if isinstance(size, str) else size:g}u,"
+                    " wire side at x=-8.255).")
         else:
             cap += " Cherry MX PCB-mount stabilizer holes included."
         cap += (" Stabilizer plate cut on User.5"
@@ -597,12 +638,16 @@ def make_variant(base_text, base_name, suffix, size, stab, diode=None):
     elif stab == "choc":
         cap += (" Kailh Choc 1350 stabilizer: PCB cutout slots (Edge.Cuts)"
                 " and plate cuts on User.5. Plate required."
-                " For Choc V1 switches only (wire interferes with Choc V2).")
+                + (" Rotated 90 deg for the vertical keycap (wire side at x=+7.25)."
+                   if vertical else "")
+                + " For Choc V1 switches only (wire interferes with Choc V2).")
     elif stab == "chocv2":
         cap += (" Kailh Choc V2 stabilizer (CPG1353G24D01): PCB cutout slots"
                 " (Edge.Cuts) and plate cuts on User.5 (overlapping outlines;"
                 " union in plate CAD). Plate required."
-                " For Choc V2 / Gateron KS-33 only (not Choc V1).")
+                + (" Rotated 90 deg for the vertical keycap (wire side at x=-8.28)."
+                   if vertical else "")
+                + " For Choc V2 / Gateron KS-33 only (not Choc V1).")
     elif (isinstance(size, str) and size.startswith("ISOEnter")) or (
             isinstance(size, float) and size >= STAB_MIN_SIZE):
         cap += " No stabilizer PCB features."
@@ -718,11 +763,36 @@ def main():
         if is_mx:
             variants.append(("ISOEnter_MXPCBStab", "ISOEnter", "mx"))
             variants.append(("ISOEnterFlip_MXPCBStab", "ISOEnterFlip", "mx"))
+        variants = [(*v, False) for v in variants]
 
-        for suffix, size, stab in variants:
+        # 縦向き(1u 幅 × h u 高さ)。スタビ要素は 90°回転で、スイッチ本体の
+        # 上下(|y| >= 8.75)に来るためホットスワップソケットとも干渉しにくい
+        # (横向きで干渉する Choc V2 スロットも縦なら生成できる。干渉チェックで判定)
+        for h in VERTICAL_SIZES:
+            sfx = f"{h:.2f}u_Vertical"
+            variants.append((sfx, h, None, True))
+            if is_mx and h >= STAB_MIN_SIZE and h in STAB_X_OFFSET:
+                variants.append((f"{sfx}_MXPCBStab", h, "mx", True))
+            if is_choc_v1 and h in CHOC_STAB_X:
+                hit = slot_collides(base_text, choc_stab_slot_rects(h, True))
+                if hit:
+                    print(f"  SKIP {base_name}_{sfx}_ChocV1Stab: "
+                          f"V1 スロットがパッド{hit[0]}と干渉({hit[1]:.2f}mm)")
+                else:
+                    variants.append((f"{sfx}_ChocV1Stab", h, "choc", True))
+            if (is_choc_v2 or is_gateron) and h in CHOC_V2_STAB_X:
+                hit = slot_collides(base_text, choc_v2_stab_slot_rects(h, True))
+                if hit:
+                    print(f"  SKIP {base_name}_{sfx}_ChocV2Stab: "
+                          f"V2 スロットがパッド{hit[0]}と干渉({hit[1]:.2f}mm)")
+                else:
+                    variants.append((f"{sfx}_ChocV2Stab", h, "chocv2", True))
+
+        for suffix, size, stab, vert in variants:
             for dio in ((None, diode) if diode else (None,)):
                 sfx = suffix + ("_Diode" if dio else "")
-                name, text = make_variant(base_text, base_name, sfx, size, stab, dio)
+                name, text = make_variant(base_text, base_name, sfx, size, stab, dio,
+                                          vertical=vert)
                 (out_dir(base_name) / f"{name}.kicad_mod").write_text(text)
                 count += 1
 
