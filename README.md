@@ -84,7 +84,11 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
     行 6〜7 = 縦 2u の同 3 種 + 14.00。切り抜き 53 個、切り抜き総周長 約 3.0m（金属レーザーの価格は
     ほぼこれで決まる）。生成は `scripts/test_plate_dxf.py`（ezdxf + shapely が必要。寸法は
     `plate_cut_lines.py` / `generate_variants.py` の定数を参照するので単一情報源）。
-    重なるスタビ外形は shapely で union 済みで、DXF は閉じた LWPOLYLINE のみ（円弧は 1/4 円 32 分割の折れ線）
+    重なるスタビ外形は shapely で union 済みで、DXF は閉じた LWPOLYLINE のみ（円弧は 1/4 円 32 分割の折れ線）。
+    **見積用の `docs/test-plate-150x150-quote.dxf`** も同時に生成する（Choc V2 スタビの 2 セルを 14.00 開口に
+    置き換えて 1mm 未満の残り幅を無くし、円弧を 1/4 円 8 分割・頂点 3,671 に減らしたもの）。完全版は
+    JLCCNC の自動見積で「マニュアル見積」に回った（2026-09-07。原因は 0.6mm / 0.36mm の残り幅か
+    微小セグメントと推定、未確定）ので、価格を即時に見たいときは見積用を使う
   - 半径と中心のずらし量は `scripts/plate_cut_lines.py` の `RELIEF_R` / `RELIEF_INSET`。変更後
     `python3 scripts/plate_cut_lines.py`（33 ベースを書き直す。冪等）→
     `python3 scripts/generate_variants.py`（`_Diode` と variants を再生成）。
