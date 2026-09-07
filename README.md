@@ -74,6 +74,17 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
     つながる（島にはならない。帯自体が細い問題は下の `_ChocV2Stab` の警告を参照）。
     Choc V1 スタビ開口とは重ならない（梁 2.3mm 以上）。Gateron LP スタビの溝
     （y=0.15〜2.65）は開口の辺の中間を横切るので島は生じない
+  - **テストプレート（2026-09-07）**: [`docs/test-plate-150x150.dxf`](docs/test-plate-150x150.dxf)
+    （プレビュー [`docs/test-plate-150x150.svg`](docs/test-plate-150x150.svg)）。150×150mm、19.05mm ピッチ 7×7、
+    四隅に M2 用 Ø2.2 穴。1 枚で **板材の見積比較**（JLCCNC の板金見積に DXF をそのまま上げて材料・仕上げを
+    切り替える。FR4 なら KiCad で DXF を Edge.Cuts に取り込んで PCB として発注）と、
+    **開口寸法・リリーフ・低背スタビカットの実物確認**ができる。内容は上から
+    行 1〜3 = 14.00 / 13.95 / 13.80 + 現行リリーフ、行 4 = リリーフ無し 3 種・旧 R1.0（角中心）3 種・
+    化粧カバー 15.60、行 5 = 横 2u の Gateron LP / Choc V2 / Choc V1 スタビカット、
+    行 6〜7 = 縦 2u の同 3 種 + 14.00。切り抜き 53 個、切り抜き総周長 約 3.0m（金属レーザーの価格は
+    ほぼこれで決まる）。生成は `scripts/test_plate_dxf.py`（ezdxf + shapely が必要。寸法は
+    `plate_cut_lines.py` / `generate_variants.py` の定数を参照するので単一情報源）。
+    重なるスタビ外形は shapely で union 済みで、DXF は閉じた LWPOLYLINE のみ（円弧は 1/4 円 32 分割の折れ線）
   - 半径と中心のずらし量は `scripts/plate_cut_lines.py` の `RELIEF_R` / `RELIEF_INSET`。変更後
     `python3 scripts/plate_cut_lines.py`（33 ベースを書き直す。冪等）→
     `python3 scripts/generate_variants.py`（`_Diode` と variants を再生成）。
