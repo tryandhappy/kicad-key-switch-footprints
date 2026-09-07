@@ -10,9 +10,9 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
 
 | 組むスイッチ | 登録するライブラリ | 使うフットプリント（1u） | プレートに書き出す層 | 2u 以上のキー |
 |---|---|---|---|---|
-| **Kailh Choc（V1 でも V2 でも）** | `variants-choc.pretty` | `SW_Kailh_Choc_V1V2_HotSwap_Hybrid_1.00u` | `User.3`（13.95。V1/V2 でプレート共用） | `..._2.00u` を**スタビ無し**で使う（Choc のスタビは入手性・FR4 プレート強度とも難あり） |
+| **Kailh Choc（V1 でも V2 でも）** | `variants-choc.pretty` | `SW_Kailh_Choc_V1V2_HotSwap_Hybrid_1.00u` | `User.3`（13.95。V1/V2 でプレート共用） | `..._2.00u` を**スタビ無し**で使う（Choc のスタビは入手性・FR4 プレート強度とも難あり）。2u は親指キーに限るか 1.5u にすると傾きが目立たない（下記「スタビ無しの 2u」） |
 | **Cherry MX 互換（通常の高さ）** | `variants-mx.pretty` | `SW_MX_HotSwap_PTH_1.00u` | `User.2`（14.00） | `..._2.00u_MXPCBStab`（Cherry PCB マウントスタビ。プレートマウントでも可） |
-| **Gateron Low Profile 2.0（KS-33）** | `variants-gateron.pretty` | `SW_Gateron_LowProfile_HotSwap_PTH_1.00u` | `User.2`（14.00） | `..._2.00u_GateronLPStab`（Gateron 純正プレートマウントスタビ）か、スタビ無し |
+| **Gateron Low Profile 2.0（KS-33）** | `variants-gateron.pretty` | `SW_Gateron_LowProfile_HotSwap_PTH_1.00u` | `User.2`（14.00） | **FR4 プレートならスタビ無し**（`..._2.00u`）。`..._2.00u_GateronLPStab`（Gateron 純正プレートマウントスタビ）は**金属プレート前提**（FR4 では取り外し時に開口脇の柱が折れ得る。下記警告） |
 
 - サイズは `_1.25u` `_1.50u` `_2.00u` … `_ISOEnter` `_2.00u_Vertical` など（一覧は下のバリアント節）。
   裏面ダイオード込みにしたいときは末尾に `_Diode` を付けた版を使う（回路図は `symbols/` の `SW_Key_Diode`）
@@ -23,6 +23,15 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
   （Cherry MX LP。入手困難でこのフォークの想定プレート構成にも載らない）。ベースは
   `single.pretty` / `double.pretty` に残してあり、必要なら
   `python3 scripts/generate_variants.py --all` でバリアントも生成できる
+- **スタビ無しの 2u について**: 低背スイッチの 2u をスタビ無しで組むと、端を押したときにキャップが
+  ステムを支点に傾く。原因は ① ハウジングが PCB に対して傾く / ② スライダーがハウジング内で傾く /
+  ③ キャップがステム上で傾く、の 3 層で、**プレートが直すのは ① だけ**（②③ はスイッチとキャップの
+  遊び）。プレートレスからプレート付きにすると少し締まるが、スタビの代わりにはならない。
+  実用上は **2u を親指キーに限定する**（キャップ中央付近を押すので傾きが出にくい）か **1.5u にする**
+  （支点からの距離が 4.8mm 縮む）のが効く。**FR4 プレートでスタビを使える唯一の経路は
+  Choc V1 + Choc V1 スタビ**（`_ChocV1Stab`。ハウジングを PCB スロットに落としワイヤーをプレート下に
+  通すので、プレート開口はスイッチ開口と独立で両端固定の梁が残る。ただし国内在庫は
+  2026-09 時点で遊舎工房 1 店）。Gateron LP / Choc V2 でスタビを使うなら金属プレート
 - **`variants-hybrid-pcb-only.pretty`（MX × Choc ハイブリッド）は上級者向け**。1 枚の PCB を
   MX 版と Choc 版で作り分けたい場合にだけ使う。**互換なのは PCB だけ**で、プレート
   （高さ 5.0 vs 2.2mm）・ケース・スタビはスイッチごとに別設計になる。
@@ -235,6 +244,11 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
       この形状は元々 1.5mm 級の金属プレートを想定した設計と考えるのが妥当で、
       ワイヤーがプレートの高さを通る V2 スタビは MX（ワイヤーがプレート下）・
       Choc V1（PCB スロット方式）より FR4 プレートに厳しい
+    - **最悪荷重はスイッチの取り外し**。打鍵はハウジング底が PCB で受けるので柱に力は掛からないが、
+      ホットスワップからの引き抜きは 20〜40N 必要で、プーラーの先を**プレートに当ててテコにすると
+      支点がちょうど開口脇の柱（x 7〜9mm）に来る**。11.2mm の片持ち梁の破断目安は先端約 19N
+      （面外）なので、テコ操作 1 回で折れ得る。FR4 で試す場合は「プレートをテコにせず真上に引く」
+      運用が前提
   - **Gateron Low Profile 純正プレートマウントスタビ（KS-57B210T）用 → `_GateronLPStab` 版**
     （2026-09-07 追加。Gateron LP ベース 3 種 × 2.00u / 2.00u_Vertical、`_Diode` 版込みで 12 ファイル）。
     図: [`docs/gateron-lp-stab-plate-groove.svg`](docs/gateron-lp-stab-plate-groove.svg)（ワイヤー溝がスイッチ開口を横切る様子）。
@@ -249,7 +263,18 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
     ステム間隔 ±12.0・ハウジング中心 y・溝の高さと位置・突起深さは同図を 400dpi で
     ラスタライズして実測した値（誤差 ±0.1mm 程度）。**ハウジングのプレート下への突出量は
     仕様書に無く、プレート下面〜PCB 間（本フォークの想定は 1.0mm）に収まるかは未検証**。
-    6.25U も Gateron 公式にあるがステム間隔の資料が無いため生成していない
+    6.25U も Gateron 公式にあるがステム間隔の資料が無いため生成していない。
+    **⚠ FR4 プレートでの強度注意（2026-09-07）**: ワイヤー溝（y 0.15〜2.65）がスイッチ開口
+    （x=±7.0）とハウジング開口（x=±9.0）の間の幅 2.0mm の柱を横切るため、柱は上 5.8mm / 下 4.2mm の
+    片持ち梁 2 本になる（島にはならず、両方とも根元は本体に付く。図参照）。1.2mm FR4 の概算では
+    破断目安が先端 約 37N（上の柱、面外）で、打鍵・真上への引き抜きでは柱に力が掛からないが、
+    **スイッチ取り外し時にプーラーをプレートに当ててテコにすると支点が柱の自由端に来て
+    20〜40N が集中し、折れ得る**。Choc V2 版（11.2mm、約 19N）より 2 倍強いが、
+    MX の FR4 プレートでスタビ開口脇に残る両端固定の梁（1.3mm 幅）と比べると剛性は約 1/3。
+    Gateron の推奨開口は金属プレートの完成品（Keychron / NuPhy）での実績で、1.2mm FR4 での実績は
+    確認できていない。**推奨: FR4 プレートでは 2u をスタビ無しにする。スタビを使うなら
+    1.2〜1.5mm の金属プレート。** FR4 で試すならテストクーポンで取り外し操作を再現して確認する。
+    KS-33 のツメが開口の左右（柱側）か上下かは未確認で、左右ならツメを外すときの荷重も柱に掛かる
   - **6.50u は PCB マウントスタビの標準規格が無い**（kiswitch / marbastlib にも無い）
     ため `_MXPCBStab` 版は生成していない
 
