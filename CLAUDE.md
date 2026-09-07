@@ -1,8 +1,10 @@
 # kicad-key-switch-footprints
 
 キースイッチ(MX / Kailh Choc / Gateron Low Profile)用 KiCad フットプリント集。
-`single.pretty/`(片面実装。手書き28+生成 `_Diode` 27)+`double.pretty/`(両面実装5)がベース本体、
-`preview/*.svg` が README 用のプレビュー画像(ベース33+`_Diode` 27)。リポジトリ直下はライブラリではない。
+`single.pretty/`(片面実装。手書き28+生成 `_Diode` 22)+`double.pretty/`(両面実装5)がベース本体、
+`preview/*.svg` が README 用のプレビュー画像(ベース33+`_Diode` 22)。リポジトリ直下はライブラリではない。
+**生成の既定除外**: `_alt*`(4)と `MX_LowProfile*`(3)のベースは variants も `_Diode` も作らない
+(`EXCLUDED_BASE_SUBSTRINGS`。`--all` で含める)。README 冒頭の「まずこれを使う」が推奨 3 種。
 `symbols/key-switch-diode.kicad_sym` は `_Diode` フットプリント用の一体シンボル(手書き)。
 `docs/` は README から参照する参考資料(プレート実物写真、Cherry MX LP 取付図面 PDF
 `cherry-mx-low-profile-drawing-MX1B-52NA-rev00.pdf`(Cherry の複製制限注記付きなので公開継続は要判断)、
@@ -19,8 +21,9 @@ Choc V2 スタビのプレート干渉図 `chocv2-stab-plate-cantilever.svg`(ス
   **`*_Diode.kicad_mod` は生成物**(手編集禁止。`_Diode` はスクリプトの予約サフィックスで、
   再生成時に削除されるため手書きベース名に使ってはいけない)
 - **`variants-*.pretty/`(生成物、スイッチ種別で4ライブラリ)**: キーキャップサイズ別バリアント。
-  variants-mx(MX純系638) / variants-choc(Choc純系506) / variants-mx-choc(MX×Chocハイブリッド268) /
-  variants-gateron(Gateron LP 128)。
+  variants-mx(MX純系464) / variants-choc(Choc純系464。Choc V1V2 ハイブリッド含む=プレート共用可) /
+  variants-hybrid-pcb-only(MX×Chocハイブリッド134。PCB互換のみ、旧 variants-mx-choc) /
+  variants-gateron(Gateron LP 128)。`--all` 時は 1540。
   再生成は `python3 scripts/generate_variants.py`(全削除→再生成。手編集禁止、直すのはスクリプト側)
   - コートヤード = キーキャップ範囲。外縁は公称(w×19.05×19.05)より各辺0.025mm控え
     (1u なら中心線±9.475・線幅0.05で外縁19.00mm角)。19.05mmピッチの隣接キーと誤DRCしないため
@@ -40,7 +43,7 @@ Choc V2 スタビのプレート干渉図 `chocv2-stab-plate-cantilever.svg`(ス
     **Edge.Cutsの矩形スロット2個**(6.5×9.5mm、中心x=±12.0、形状はKeebio-Parts.pretty準拠、MIT)。
     プレートカット線をUser.5に持つ(本体5.95×7.95+突出4.55×6.25+ワイヤー溝全幅×1.4、
     kb-plategen準拠、重なる外形はプレートCAD側でunion)。ホットスワップ系はソケットパッドと
-    スロットが物理干渉するため生成しない(スクリプトが干渉チェックで自動スキップ、THT系6種のみ)。
+    スロットが物理干渉するため生成しない(スクリプトが干渉チェックで自動スキップ、THT系5種のみ。--all なら6種)。
     **FR4 1.2mm では非推奨**: ワイヤー溝がスイッチ左右の柱(幅2.05)を切り離して片持ち梁(11.2mm)にし、
     開口下辺と溝の間に 0.6mm の帯しか残らない(旧 R1.0 リリーフでは帯が島になっていた。現行 R0.6 では
     両端でつながるが細い。図 `docs/chocv2-stab-plate-cantilever.svg`、詳細は README)

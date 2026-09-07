@@ -5,7 +5,12 @@ single.pretty/(片面実装)と double.pretty/(両面実装)のベースフッ�
 (キーキャップなし)から、キーキャップサイズ別のフットプリントを
 スイッチ種別ごとの 4 ライブラリに生成する:
 variants-mx.pretty(MX 純系) / variants-choc.pretty(Choc V1/V2 純系) /
-variants-mx-choc.pretty(MX×Choc ハイブリッド) / variants-gateron.pretty(Gateron LP)。
+variants-hybrid-pcb-only.pretty(MX×Choc ハイブリッド。PCB 互換のみでプレート・スタビは
+別設計) / variants-gateron.pretty(Gateron LP)。
+
+既定では **`_alt*`(代替パッド配置)と `MX_LowProfile*`(入手困難・高さ非互換)のベースは
+生成対象外**(バリアントも `_Diode` ベースも作らない。2026-09-07)。選択肢を絞って
+ユーザーの迷いを減らすため。必要なら `python3 scripts/generate_variants.py --all` で含める。
 
 - コートヤードをキーキャップ占有範囲に置換
   (外縁 = 公称キーキャップ範囲より各辺 0.025mm 控え。
@@ -51,17 +56,24 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT_DIRS = {k: ROOT / f"variants-{k}.pretty"
-            for k in ("mx", "choc", "mx-choc", "gateron")}
+            for k in ("mx", "choc", "hybrid-pcb-only", "gateron")}
+
+# 既定で生成対象から外すベース(--all で含める)。ベースファイル自体は上流互換のため残す
+EXCLUDED_BASE_SUBSTRINGS = ("_alt", "MX_LowProfile")
+
+
+def is_excluded_base(base_name):
+    return any(sub in base_name for sub in EXCLUDED_BASE_SUBSTRINGS)
 
 
 def family(base_name):
-    """スイッチ種別("mx" / "choc" / "mx-choc" / "gateron")をベース名から決める。"""
+    """スイッチ種別("mx" / "choc" / "hybrid-pcb-only" / "gateron")をベース名から決める。"""
     if base_name.startswith("SW_Gateron_"):
         return "gateron"
     if base_name.startswith("SW_Kailh_Choc_"):
         return "choc"
-    if "Choc" in base_name:   # SW_MX_*Choc* ハイブリッド
-        return "mx-choc"
+    if "Choc" in base_name:   # SW_MX_*Choc* ハイブリッド(PCB 互換のみ)
+        return "hybrid-pcb-only"
     return "mx"
 
 
@@ -185,7 +197,7 @@ DIODE_FAB = (1.9, 0.9, -1.2)  # B.Fab ボディ半長 / 半高 / カソードバ
 DIODE_PLACEMENT = {
     "mx": (-7.2, -4.0, True),
     "choc": (-7.2, -4.0, True),
-    "mx-choc": (-7.2, -4.0, True),
+    "hybrid-pcb-only": (-7.2, -4.0, True),
     "gateron": (-7.2, -4.0, True),
 }
 
@@ -754,6 +766,7 @@ def diode_fits(base_name, base_text, place):
 
 
 def main():
+    include_all = "--all" in sys.argv[1:]
     for d in OUT_DIRS.values():
         d.mkdir(exist_ok=True)
         for old in d.glob("*.kicad_mod"):
@@ -769,6 +782,10 @@ def main():
                     if not p.stem.endswith("_Diode")],
                    key=lambda p: p.name)
     assert bases, "ベースフットプリントが見つかりません"
+    if not include_all:
+        skipped = [p.stem for p in bases if is_excluded_base(p.stem)]
+        bases = [p for p in bases if not is_excluded_base(p.stem)]
+        print(f"  生成対象外(--all で含める): {len(skipped)} ベース: {', '.join(skipped)}")
     count = 0
     diode_bases = 0
     for base in bases:

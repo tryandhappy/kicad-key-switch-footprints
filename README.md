@@ -2,6 +2,32 @@
 
 This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboard switches, released under the [CERN-OHL-P v2](/LICENSE).
 
+## ★ まずこれを使う（迷ったら 1 系統 1 フットプリント。2026-09-07）
+
+このフォークは選択肢が多い（ハイブリッド、代替パッド配置、スタビ 4 方式、プレート層 4 種）。
+**組むスイッチの系統を決めたら、下の 1 行だけ見てライブラリを 1 つ登録すればよい。**
+以下の節は「なぜそうなっているか」と例外の説明で、最初は読まなくてよい。
+
+| 組むスイッチ | 登録するライブラリ | 使うフットプリント（1u） | プレートに書き出す層 | 2u 以上のキー |
+|---|---|---|---|---|
+| **Kailh Choc（V1 でも V2 でも）** | `variants-choc.pretty` | `SW_Kailh_Choc_V1V2_HotSwap_Hybrid_1.00u` | `User.3`（13.95。V1/V2 でプレート共用） | `..._2.00u` を**スタビ無し**で使う（Choc のスタビは入手性・FR4 プレート強度とも難あり） |
+| **Cherry MX 互換（通常の高さ）** | `variants-mx.pretty` | `SW_MX_HotSwap_PTH_1.00u` | `User.2`（14.00） | `..._2.00u_MXPCBStab`（Cherry PCB マウントスタビ。プレートマウントでも可） |
+| **Gateron Low Profile 2.0（KS-33）** | `variants-gateron.pretty` | `SW_Gateron_LowProfile_HotSwap_PTH_1.00u` | `User.2`（14.00） | `..._2.00u_GateronLPStab`（Gateron 純正プレートマウントスタビ）か、スタビ無し |
+
+- サイズは `_1.25u` `_1.50u` `_2.00u` … `_ISOEnter` `_2.00u_Vertical` など（一覧は下のバリアント節）。
+  裏面ダイオード込みにしたいときは末尾に `_Diode` を付けた版を使う（回路図は `symbols/` の `SW_Key_Diode`）
+- `HotSwap_PTH` はソケットの穴がメッキ済みなので、**ソケットを付けても、直接はんだ付けしても使える**。
+  ソケットを使わない前提で穴を小さくしたいときだけ `_THT` 版を選ぶ
+- 化粧カバー（スイッチを掴まない上板）を作るなら、上の層に加えて `User.1`（15.60）を書き出す
+- **既定の生成物に含めていないもの**: `_alt*`（代替パッド配置。機能差なし）と `MX_LowProfile*`
+  （Cherry MX LP。入手困難でこのフォークの想定プレート構成にも載らない）。ベースは
+  `single.pretty` / `double.pretty` に残してあり、必要なら
+  `python3 scripts/generate_variants.py --all` でバリアントも生成できる
+- **`variants-hybrid-pcb-only.pretty`（MX × Choc ハイブリッド）は上級者向け**。1 枚の PCB を
+  MX 版と Choc 版で作り分けたい場合にだけ使う。**互換なのは PCB だけ**で、プレート
+  （高さ 5.0 vs 2.2mm）・ケース・スタビはスイッチごとに別設計になる。
+  詳細は「ハイブリッドのプレート共用」と「スイッチ × スタビライザー対応表」
+
 ## ★ このフォーク限定: プレートのカット線（上流には無い。2026-08-29、四隅リリーフ 2026-09-03）
 
 **33 個すべての `.kicad_mod` に、キーボードプレート加工用のカット線
@@ -123,10 +149,14 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
 ## ★ このフォーク限定: キーキャップサイズバリアント `variants-*.pretty`（2026-08-30）
 
 **`single.pretty/` + `double.pretty/` の 33 ベースフットプリントから、
-キーキャップサイズ別のバリアント（1540 ファイル）をスイッチ種別の
-4 ライブラリに自動生成してある**（`variants-mx` 638 / `variants-choc` 506 /
-`variants-mx-choc` 268 / `variants-gateron` 128。それぞれ別ライブラリとして登録）。
+キーキャップサイズ別のバリアント（1190 ファイル）をスイッチ種別の
+4 ライブラリに自動生成してある**（`variants-mx` 464 / `variants-choc` 464 /
+`variants-hybrid-pcb-only` 134 / `variants-gateron` 128。それぞれ別ライブラリとして登録）。
 再生成は `python3 scripts/generate_variants.py`。
+**既定では `_alt*` 4 ベースと `MX_LowProfile*` 3 ベースを生成対象外**にしている
+（2026-09-07。バリアントも `_Diode` ベースも作らない。`--all` で含めると 1540 + 27 になる）。
+`variants-hybrid-pcb-only`（旧 `variants-mx-choc`。2026-09-07 改名）は MX × Choc
+ハイブリッドで、**PCB 互換のみ**（プレート・スタビは別設計）であることを名前で示す。
 
 - **ベース（直下 33 ファイル）= キーキャップなし**。コートヤードはスイッチ単体の
   占有範囲（16.5mm 角）のまま
@@ -153,7 +183,7 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
 - **スタビライザー**（2u 以上と ISO Enter）:
   - **サフィックス無し版 = スタビ用の PCB 要素なし**。MX のプレートマウントスタビは
     そのまま使える
-  - **Cherry MX PCB マウント用 → `_MXPCBStab` 版**（MX 系ベース 18 種のみ）。
+  - **Cherry MX PCB マウント用 → `_MXPCBStab` 版**（MX 系ベース 12 種のみ。`--all` なら 18 種）。
     NPTH 小穴 Ø3.048（y=−6.985）+ 大穴 Ø3.9878（y=+8.255。小穴と 15.24mm 間隔）、
     ステム位置は 2u系=±11.938 / 3u=±19.05 / 4.5u=±33.3375 / 6u=±47.625 /
     6.25u=±50 / 7u=±57.15mm。
@@ -163,7 +193,7 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
     kb-plategen "Normal" 準拠。プレートマウント・PCB マウント両対応の
     Cherry スタイルなので、プレートマウントスタビで組む場合も
     `_MXPCBStab` 版を使えばカット線が得られる。NPTH 穴は未使用でも無害）
-  - **Kailh Choc 1350（V1）スタビ用 → `_ChocV1Stab` 版**（Choc V1 対応ベース 15 種 ×
+  - **Kailh Choc 1350（V1）スタビ用 → `_ChocV1Stab` 版**（Choc V1 対応ベース 12 種（`--all` なら 15 種）×
     2.00u / 6.25u のみ = Kailh が製造しているサイズ）。丸穴ではなく
     **PCB の角丸スロット切り欠き 4 個（`Edge.Cuts`）+ プレート必須**という方式。
     本体スロット 5.3×5.5mm + ワイヤースロット 4.0×3.5mm（角 R0.5）、
@@ -178,8 +208,8 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
     突出 4.55×6.25 + ワイヤー溝 全幅×1.4mm、角 R0.5、kb-plategen 準拠。
     3 種の角丸矩形は互いに重なるのでプレート CAD 側で union する）。
     ホットスワップ系ベースはソケットパッドがスロットと物理干渉するため
-    横向き 2u では生成対象外（THT 系 6 種のみ。生成スクリプトの干渉チェックで自動判定。
-    縦向き `2.00u_Vertical_ChocV2Stab` は干渉しないためホットスワップ系を含む 12 種）。
+    横向き 2u では生成対象外（THT 系 5 種のみ（`--all` なら 6 種）。生成スクリプトの干渉チェックで自動判定。
+    縦向き `2.00u_Vertical_ChocV2Stab` は干渉しないためホットスワップ系を含む 10 種（`--all` なら 12 種））。
     **⚠ FR4 プレートでの強度警告（2026-09-07）**: この形状は 1.2mm FR4 プレートには向かない。
     図: [`docs/chocv2-stab-plate-cantilever.svg`](docs/chocv2-stab-plate-cantilever.svg)
     - **スイッチ左右の柱が片持ち梁になる**。ワイヤー溝が x=±12 まで走るため、スイッチ開口
@@ -262,17 +292,18 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
   kiswitch 準拠
 - **注意**: キーキャップ範囲のコートヤードは、キャップ下に置くダイオード等も
   DRC エラーにする。物理的に問題ない配置は KiCad 側で除外指定するか、ベース版を使う
-- **検証**: KiCad 10.0.5 の `kicad-cli fp export svg` で 1540 ファイル全部のパースを
-  確認済み（`_GateronLPStab` 追加時は variants-gateron 128 ファイルを再 export、
-  横・縦 1 件ずつ描画を目視確認）。コートヤード寸法・スタビ穴座標はスクリプトで機械チェック済み。
-  プレビュー画像はベース 33 + `_Diode` ベース 27 のみ
+- **検証**: KiCad 10.0.5 の `kicad-cli fp export svg` で全バリアント（`--all` 時の 1540 ファイル）の
+  パースを確認済み（`_GateronLPStab` は横・縦 1 件ずつ描画を目視確認。ライブラリ改名後の
+  `variants-hybrid-pcb-only` 134 ファイルも再 export）。コートヤード寸法・スタビ穴座標は
+  スクリプトで機械チェック済み。
+  プレビュー画像はベース 33 + `_Diode` ベース 22 のみ
   （バリアントは枚数が膨大なため生成しない）
 
 ## ★ このフォーク限定: 裏面 SMD ダイオード付き `_Diode` バリアント（2026-08-31）
 
 **手半田できるサイズの表面実装ダイオードを裏面（B.Cu）に組み込んだ `_Diode` 版を
 自動生成してある。** ベース版（コートヤードなし）は `single.pretty/` 内の
-`<ベース名>_Diode`（27 ファイル、生成物）、キーキャップサイズ別は各 `variants-*` の
+`<ベース名>_Diode`（22 ファイル、生成物。`_alt*` / MX LP は既定で生成対象外）、キーキャップサイズ別は各 `variants-*` の
 `<ベース名>_<サイズ>[_<スタビ>]_Diode`。
 
 - **パッド**: SMD roundrect **2.0×1.4mm** ×2、ダイオード軸方向 ±1.6mm
@@ -314,11 +345,11 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
 
 | ライブラリ | 内容 | ファイル数 |
 |---|---|---|
-| `single.pretty/` | **片面実装**ベース（`_alt*` の片面版・`_nSilk`・`_swap` を含む） | 55（手書き 28 + 生成 `_Diode` 27） |
+| `single.pretty/` | **片面実装**ベース（`_alt*` の片面版・`_nSilk`・`_swap` を含む） | 50（手書き 28 + 生成 `_Diode` 22） |
 | `double.pretty/` | **両面実装**ベース＝リバーシブル基板用（`_double`、その `_alt1/_alt2` を含む） | 5 |
-| `variants-mx.pretty/` | バリアント: MX 純系（ハイブリッド除く。生成物） | 638 |
-| `variants-choc.pretty/` | バリアント: Choc 純系（V1 / V2 / Choc V1V2 ハイブリッド。生成物） | 506 |
-| `variants-mx-choc.pretty/` | バリアント: MX × Choc ハイブリッド（生成物） | 268 |
+| `variants-mx.pretty/` | バリアント: MX 純系（ハイブリッド除く。生成物） | 464 |
+| `variants-choc.pretty/` | バリアント: Choc 純系（V1 / V2 / Choc V1V2 ハイブリッド＝プレート共用可。生成物） | 464 |
+| `variants-hybrid-pcb-only.pretty/` | バリアント: MX × Choc ハイブリッド。**PCB 互換のみ**、プレート・スタビは別設計（生成物。旧 `variants-mx-choc`） | 134 |
 | `variants-gateron.pretty/` | バリアント: Gateron Low Profile（生成物） | 128 |
 
 このほか `symbols/key-switch-diode.kicad_sym`（`_Diode` フットプリント用の
