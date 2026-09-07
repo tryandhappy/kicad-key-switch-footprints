@@ -5,7 +5,8 @@
 `preview/*.svg` が README 用のプレビュー画像(ベース33+`_Diode` 27)。リポジトリ直下はライブラリではない。
 `symbols/key-switch-diode.kicad_sym` は `_Diode` フットプリント用の一体シンボル(手書き)。
 `docs/` は README から参照する参考資料(プレート実物写真、Cherry MX LP 取付図面 PDF
-`cherry-mx-low-profile-drawing-MX1B-52NA-rev00.pdf`。図面は Cherry の複製制限注記付きなので公開継続は要判断)。
+`cherry-mx-low-profile-drawing-MX1B-52NA-rev00.pdf`(Cherry の複製制限注記付きなので公開継続は要判断)、
+Choc V2 スタビのプレート干渉図 `chocv2-stab-plate-cantilever.svg`(スクリプト生成の説明図))。
 
 **生成物を伴う変更の再生成順**: `python3 scripts/plate_cut_lines.py`(User.2〜4 を変えた時のみ)→
 `python3 scripts/generate_variants.py`(_Diode と variants)→ プレビュー SVG 再生成(下記)。
@@ -39,7 +40,10 @@
     **Edge.Cutsの矩形スロット2個**(6.5×9.5mm、中心x=±12.0、形状はKeebio-Parts.pretty準拠、MIT)。
     プレートカット線をUser.5に持つ(本体5.95×7.95+突出4.55×6.25+ワイヤー溝全幅×1.4、
     kb-plategen準拠、重なる外形はプレートCAD側でunion)。ホットスワップ系はソケットパッドと
-    スロットが物理干渉するため生成しない(スクリプトが干渉チェックで自動スキップ、THT系6種のみ)
+    スロットが物理干渉するため生成しない(スクリプトが干渉チェックで自動スキップ、THT系6種のみ)。
+    **FR4 1.2mm では非推奨**: ワイヤー溝がスイッチ左右の柱(幅2.05)を切り離して片持ち梁(11.2mm)にし、
+    User.3 の下側2隅リリーフ円が溝に0.39食い込んで開口下辺と溝の間の0.6mm帯が島になる
+    (対策候補 T ボーン/開口拡張は未決定。図 `docs/chocv2-stab-plate-cantilever.svg`、詳細は README)
   - `_GateronLPStab` = Gateron LP 純正プレートマウントスタビ(KS-57B210T)用(Gateron ベース3種×2.00u/2.00u_Vertical)。
     **PCB 側要素なし、User.5 のプレートカット線のみ**(ハウジング 6.00×12.50 中心(±12.0,+0.6)+下辺突起 1.7 幅+
     ワイヤー溝 全幅×2.5 中心y=+1.4、重なる外形は union)。数値は Gateron 仕様書の推奨開口図、
