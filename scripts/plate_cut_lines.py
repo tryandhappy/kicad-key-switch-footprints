@@ -1,17 +1,21 @@
 #!/usr/bin/env python3
 """スイッチ保持用プレートカット線(User.2 / User.3 / User.4)を全ベースファイルに書き直す。
 
-形状 = 正方形開口 + 四隅のコーナーリリーフ(dogbone。角を中心とした半径 RELIEF_R の円を
-対角外側へはみ出させる)。FR4 などルーター加工のプレートでは内角にビット半径が残り、
-角がほぼピン角のスイッチハウジングが座らないため、角に逃げを設ける。
-直線 4 本 + 270° 円弧 4 本の一体外形として描く(そのまま DXF 書き出しできる)。
+形状 = 正方形開口 + 四隅のコーナーリリーフ(dogbone)。半径 RELIEF_R の円の中心を、角から
+対角線上に RELIEF_INSET だけ開口の内側へ置く(円は角の点を覆い、辺の外へは
+RELIEF_R − RELIEF_INSET だけはみ出す)。FR4 などルーター加工のプレートでは内角にビット
+半径が残り、角がほぼピン角のスイッチハウジングが座らないため、角に逃げを設ける。
+JLCPCB の内側カットアウトはビット半径 0.5(Ø1.0)なので R0.6 で 0.1 の余裕
+(2026-09-07。以前は角を中心にした R1.0 で、はみ出し 1.0 が Choc V2 スタビの
+ワイヤー溝に食い込み帯が島になっていた)。
+直線 4 本 + 円弧 4 本(約 199°)の一体外形として描く(そのまま DXF 書き出しできる)。
 
 対象: single.pretty / double.pretty の手書きベース(_Diode は生成物なので対象外。
 変更後は `python3 scripts/generate_variants.py` で _Diode と variants を再生成する)。
 User.1(15.60 化粧カバー)はスイッチを掴まないのでリリーフ不要、そのまま fp_rect。
 
 冪等: 対象レイヤの既存図形(fp_rect / fp_line / fp_arc)を削除して再生成するので、
-RELIEF_R や開口寸法を変えて再実行すればよい。RELIEF_R = 0 なら fp_rect の正方形に戻る。
+RELIEF_R / RELIEF_INSET や開口寸法を変えて再実行すればよい。RELIEF_R = 0 なら fp_rect の正方形に戻る。
 新旧 2 書式(tstamp / uuid)の両方に対応。
 """
 import re
@@ -26,8 +30,11 @@ LINE_W = 0.05
 
 # レイヤ → 開口の一辺 [mm]
 PLATE_CUTS = {"User.2": 14.00, "User.3": 13.95, "User.4": 13.80}
-# コーナーリリーフ半径 [mm](円の中心 = 開口の角)。0 でリリーフなし
-RELIEF_R = 1.00
+# コーナーリリーフ半径 [mm]。0 でリリーフなし。JLCPCB の内側カット用ビット半径 0.5 + 余裕 0.1
+RELIEF_R = 0.60
+# 円の中心を角から対角線上に内側へずらす量 [mm](0 = 角が中心)。RELIEF_INSET*√2 < RELIEF_R で
+# 角の点が円に含まれる(0.35*1.414=0.495 < 0.6、余裕 0.105)。辺からのはみ出し = R − INSET = 0.25
+RELIEF_INSET = 0.35
 
 
 def relief_square_items(side, layer, new_format):
@@ -48,10 +55,14 @@ def relief_square_items(side, layer, new_format):
         return [f"(fp_rect (start {fmt(-h)} {fmt(-h)}) (end {fmt(h)} {fmt(h)})\n"
                 f"{ind}  (stroke (width {LINE_W}) (type solid)) (fill none) (layer \"{layer}\") {ident()})"]
 
+    a = RELIEF_INSET
+    assert a * 2 ** 0.5 < r, "RELIEF_INSET が大きすぎて円が角を覆わない"
+    # 円と辺の交点は角から k = a + sqrt(r^2 - a^2) の位置(a=0 なら k=r)
+    k = a + (r * r - a * a) ** 0.5
     items = []
-    # 直線 4 本: 角から r だけ短くする
-    for (x1, y1, x2, y2) in [(-h + r, -h, h - r, -h), (h, -h + r, h, h - r),
-                             (h - r, h, -h + r, h), (-h, h - r, -h, -h + r)]:
+    # 直線 4 本: 角から k だけ短くする
+    for (x1, y1, x2, y2) in [(-h + k, -h, h - k, -h), (h, -h + k, h, h - k),
+                             (h - k, h, -h + k, h), (-h, h - k, -h, -h + k)]:
         if new_format:
             items.append(f"(fp_line\n{ind}\t(start {fmt(x1)} {fmt(y1)})\n{ind}\t(end {fmt(x2)} {fmt(y2)})\n"
                          f"{ind}\t(stroke (width {LINE_W}) (type solid))\n"
@@ -59,14 +70,14 @@ def relief_square_items(side, layer, new_format):
         else:
             items.append(f"(fp_line (start {fmt(x1)} {fmt(y1)}) (end {fmt(x2)} {fmt(y2)})\n"
                          f"{ind}  (stroke (width {LINE_W}) (type solid)) (layer \"{layer}\") {ident()})")
-    # 円弧 4 本: 角 (sx*h, sy*h) を中心、開口の外側 270°。
-    # 中点は角から対角外側へ r/√2 ずつ。start→mid→end は KiCad 座標系(y 下向き)で時計回り
+    # 円弧 4 本: 中心は角 (sx*h, sy*h) から対角線上に a だけ内側 (sx*(h-a), sy*(h-a))。
+    # 両端は辺との交点(角から k)、中点は中心から対角外側へ r/√2(角より r/√2 − a だけ外)。
+    # start→mid→end は KiCad 座標系(y 下向き)で時計回り
     d = r / 2 ** 0.5
     for sx, sy in [(1, -1), (1, 1), (-1, 1), (-1, -1)]:
-        cx, cy = sx * h, sy * h
-        # 角から見て、開口辺の続きにある 2 点: 辺の延長上ではなく円周上の (cx - sx*r, cy) と (cx, cy - sy*r)
-        p_a = (cx, cy - sy * r)   # 縦辺側の点
-        p_b = (cx - sx * r, cy)   # 横辺側の点
+        cx, cy = sx * (h - a), sy * (h - a)
+        p_a = (sx * h, sy * (h - k))   # 縦辺側の交点
+        p_b = (sx * (h - k), sy * h)   # 横辺側の交点
         mid = (cx + sx * d, cy + sy * d)
         # 時計回り(KiCad 画面上)になるように start/end を選ぶ
         if sx * sy > 0:
@@ -123,9 +134,11 @@ def rewrite(path):
     # descr のレイヤ説明を更新
     def repl(m):
         layer, side = m.group(1), m.group(2)
-        note = f" with R{RELIEF_R:.2f} corner relief" if RELIEF_R > 0 else ""
+        note = (f" with R{RELIEF_R:.2f} corner relief (center inset {RELIEF_INSET:.2f})"
+                if RELIEF_R > 0 else "")
         return f"{layer}={side}mm square{note}"
-    s = re.sub(r"(User\.[234])=(\d+\.\d+)mm square(?: with R[\d.]+ corner relief)?", repl, s)
+    s = re.sub(r"(User\.[234])=(\d+\.\d+)mm square"
+               r"(?: with R[\d.]+ corner relief(?: \(center inset [\d.]+\))?)?", repl, s)
     path.write_text(s)
     return True
 
@@ -138,7 +151,7 @@ def main():
                 continue
             if rewrite(p):
                 n += 1
-    print(f"プレートカット線を書き直しました: {n} ファイル (R={RELIEF_R})")
+    print(f"プレートカット線を書き直しました: {n} ファイル (R={RELIEF_R}, inset={RELIEF_INSET})")
 
 
 if __name__ == "__main__":

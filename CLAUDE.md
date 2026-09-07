@@ -42,8 +42,8 @@ Choc V2 スタビのプレート干渉図 `chocv2-stab-plate-cantilever.svg`(ス
     kb-plategen準拠、重なる外形はプレートCAD側でunion)。ホットスワップ系はソケットパッドと
     スロットが物理干渉するため生成しない(スクリプトが干渉チェックで自動スキップ、THT系6種のみ)。
     **FR4 1.2mm では非推奨**: ワイヤー溝がスイッチ左右の柱(幅2.05)を切り離して片持ち梁(11.2mm)にし、
-    User.3 の下側2隅リリーフ円が溝に0.39食い込んで開口下辺と溝の間の0.6mm帯が島になる
-    (対策候補 T ボーン/開口拡張は未決定。図 `docs/chocv2-stab-plate-cantilever.svg`、詳細は README)
+    開口下辺と溝の間に 0.6mm の帯しか残らない(旧 R1.0 リリーフでは帯が島になっていた。現行 R0.6 では
+    両端でつながるが細い。図 `docs/chocv2-stab-plate-cantilever.svg`、詳細は README)
   - `_GateronLPStab` = Gateron LP 純正プレートマウントスタビ(KS-57B210T)用(Gateron ベース3種×2.00u/2.00u_Vertical)。
     **PCB 側要素なし、User.5 のプレートカット線のみ**(ハウジング 6.00×12.50 中心(±12.0,+0.6)+下辺突起 1.7 幅+
     ワイヤー溝 全幅×2.5 中心y=+1.4、重なる外形は union)。数値は Gateron 仕様書の推奨開口図、
@@ -58,11 +58,13 @@ Choc V2 スタビのプレート干渉図 `chocv2-stab-plate-cantilever.svg`(ス
     回路図は `symbols/key-switch-diode.kicad_sym` の SW_Key_Diode。ピン2/3は同一座標スタック=
     KiCadが接続扱い(置くだけで直列完成、PCBではパッド2→3の短い配線をラッツネストに従い引く)
 - **User.1〜User.4**: プレートカット線(User.1=15.60 化粧カバー / User.2=14.00 MX系 / User.3=13.95 Choc V2 / User.4=13.80 Choc V1)。
-  User.2〜4 は正方形+四隅 R1.00(Ø2.0)コーナーリリーフ(dogbone。角中心の円を対角外側へ、fp_line 4+fp_arc 4 の一体外形。
+  User.2〜4 は正方形+四隅 R0.60 コーナーリリーフ(dogbone。円の中心を角から対角線上に 0.35 内側に置き、辺の外へ 0.25 はみ出す。
+  fp_line 4+fp_arc 4 の一体外形。JLCPCB の内側カットはビット半径 0.5 なので R0.6。2026-09-07 まで角中心 R1.0 だったが
+  はみ出し 1.0 が Choc V2 スタビ溝に食い込むため変更。
   ルーター加工プレートの内角Rでスイッチが座らない対策)。User.1 は fp_rect のまま(化粧カバーはスイッチを掴まない)。
-  **User.2〜4 の図形は手編集せず `python3 scripts/plate_cut_lines.py` で書き直す**(半径 `RELIEF_R`・寸法 `PLATE_CUTS` が定数、
+  **User.2〜4 の図形は手編集せず `python3 scripts/plate_cut_lines.py` で書き直す**(半径 `RELIEF_R`・内側ずらし `RELIEF_INSET`・寸法 `PLATE_CUTS` が定数、
   33 ベースを冪等に書き換え、descr も更新。実行後は generate_variants.py で _Diode/variants を再生成)。
-  外端 ±8.0。`_MXPCBStab` 2u 系のスタビ開口(x=±8.563)との梁は 0.56mm(重ならないが細い)。
+  外端 ±7.25(14.00 の場合)。`_MXPCBStab` 2u 系のスタビ開口(x=±8.563)との梁は 1.31mm。Choc V2 スタビ溝(y 7.58〜)まで 0.36 残る。
   参考写真は `docs/plate-corner-relief-sample.jpeg`(Waveshare ScreenKey Module 付属プレート)
   **想定プレート構成**: 1.2mm 厚 FR4 プレート + プレート下面〜PCB 上面の隙間 1.0mm(上面〜PCB 2.2mm。Choc V1/V2・Gateron LP 向け)。
   MX は Cherry 規定 1.5mm/5.0mm でこの構成では組めない(別スタック)
