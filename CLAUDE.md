@@ -19,12 +19,12 @@
   再生成時に削除されるため手書きベース名に使ってはいけない)
 - **`variants-*.pretty/`(生成物、スイッチ種別で4ライブラリ)**: キーキャップサイズ別バリアント。
   variants-mx(MX純系638) / variants-choc(Choc純系506) / variants-mx-choc(MX×Chocハイブリッド268) /
-  variants-gateron(Gateron LP 116)。
+  variants-gateron(Gateron LP 128)。
   再生成は `python3 scripts/generate_variants.py`(全削除→再生成。手編集禁止、直すのはスクリプト側)
   - コートヤード = キーキャップ範囲。外縁は公称(w×19.05×19.05)より各辺0.025mm控え
     (1u なら中心線±9.475・線幅0.05で外縁19.00mm角)。19.05mmピッチの隣接キーと誤DRCしないため
   - `_Vertical` = 縦向きキーキャップ(幅1u×高さ1.25/1.5/2u。`VERTICAL_SIZES`)。2uにはスタビ版もあり、
-    スタビ要素は ISO Enter と同じ 90°回転 `rot()`=(x,y)→(−y,x)(ワイヤー側: MX/Choc V2=左、Choc V1=右)。
+    スタビ要素は ISO Enter と同じ 90°回転 `rot()`=(x,y)→(−y,x)(ワイヤー側: MX/Choc V2/Gateron LP=左、Choc V1=右)。
     縦ではスロットがスイッチ本体の上下に来るため、横で干渉スキップされるホットスワップ系の
     `_ChocV2Stab` も縦なら生成される(干渉チェック判定)
   - `_MXPCBStab` = Cherry MX PCBマウントスタビのNPTH穴付き(MX系ベースのみ。ステム間隔はkiswitch、
@@ -40,6 +40,11 @@
     プレートカット線をUser.5に持つ(本体5.95×7.95+突出4.55×6.25+ワイヤー溝全幅×1.4、
     kb-plategen準拠、重なる外形はプレートCAD側でunion)。ホットスワップ系はソケットパッドと
     スロットが物理干渉するため生成しない(スクリプトが干渉チェックで自動スキップ、THT系6種のみ)
+  - `_GateronLPStab` = Gateron LP 純正プレートマウントスタビ(KS-57B210T)用(Gateron ベース3種×2.00u/2.00u_Vertical)。
+    **PCB 側要素なし、User.5 のプレートカット線のみ**(ハウジング 6.00×12.50 中心(±12.0,+0.6)+下辺突起 1.7 幅+
+    ワイヤー溝 全幅×2.5 中心y=+1.4、重なる外形は union)。数値は Gateron 仕様書の推奨開口図、
+    図に無い値(ステム間隔・y 位置・溝寸法)は 400dpi ラスタ実測(±0.1mm)。プレート下クリアランス未検証。
+    定数 `GATERON_LP_STAB_X` / `GATERON_LP_PLATE_*`
   - `_Diode` = 裏面SMDダイオードパッド付き(B.Cu/B.Paste/B.Mask の 2.0×1.4mm パッド ±1.6mm =
     SOD-123/SOD-323/MiniMELF 兼用手半田ロング。パッド3=A/4=K、B.SilkSカソードバー+B.Fab外形)。
     配置は全種別統一で左端縦置き(−7.2,−4.0)、カソード=上。中央北側 y≈−4.7 のLED窓
@@ -57,7 +62,7 @@
   参考写真は `docs/plate-corner-relief-sample.jpeg`(Waveshare ScreenKey Module 付属プレート)
   **想定プレート構成**: 1.2mm 厚 FR4 プレート + プレート下面〜PCB 上面の隙間 1.0mm(上面〜PCB 2.2mm。Choc V1/V2・Gateron LP 向け)。
   MX は Cherry 規定 1.5mm/5.0mm でこの構成では組めない(別スタック)
-- **User.5**: スタビ用プレートカット線(`_MXPCBStab` / `_ChocV1Stab` / `_ChocV2Stab` バリアントのみ)
+- **User.5**: スタビ用プレートカット線(`_MXPCBStab` / `_ChocV1Stab` / `_ChocV2Stab` / `_GateronLPStab` バリアントのみ)
 - 各ファイルの `descr` にレイヤ⇄用途の対応を記載する
 - `.kicad_mod` は新旧2書式が混在(旧: 20221018/tstamp/fp_text value が29ファイル、新: 20241229/uuid/property "Value" が4ファイル)。一括処理は正規表現の1行前提を避け、括弧対応カウントでブロック抽出する
 

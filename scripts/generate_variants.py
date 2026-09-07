@@ -26,6 +26,9 @@ variants-mx-choc.pretty(MX×Choc ハイブリッド) / variants-gateron.pretty(G
   (CPG1353G24D01)用の `_ChocV2Stab` 版も生成
   (2u のみ確認。PCB は矩形スロット 2 個の切り欠き(Edge.Cuts)+ プレート必須。
    プレートカット線は User.5)
+- Gateron LP ベースには Gateron 純正プレートマウントスタビ(KS-57B210T)用の
+  `_GateronLPStab` 版も生成(2u のみ = 仕様書がある寸法。PCB 側の要素は無く
+  プレートカット線 User.5 のみ。寸法は Gateron 仕様書の推奨開口図)
 - 裏面 SMD ダイオード付きの `_Diode` 版も生成する
   (SOD-123 / SOD-323 / MiniMELF 兼用の手半田ロングパッド。パッド 3=A / 4=K。
    ベース(コートヤードなし)への `_Diode` 版は single/double.pretty 内に
@@ -111,6 +114,20 @@ MX_PLATE_CUT = (6.75, 14.0, 1.0)   # (幅, 高さ, 中心y)。ステム位置は
 # (kb-plategen も union して出力している)ので、プレート CAD 側で union する
 CHOC_V2_PLATE_PARTS = [(5.95, 7.95, 0.3441), (4.55, 6.25, 6.7559)]  # (幅,高さ,中心y)
 CHOC_V2_PLATE_WIRE = (1.4, 8.2809)  # ワイヤー溝 (高さ, 中心y)。幅はステム間隔
+# Gateron Low Profile 純正プレートマウントスタビ (KS-57B210T, 2U) のプレートカット。
+# 出典: Gateron 製品仕様書 "GATERON Low Profile Plate Mounted Stabilizer 2U"
+# (KS-57B210T) 4. Mounting Options の推奨開口図。図に数値があるのはハウジング
+# 6.00(+0.03/-0.05) x 12.50(+0.03/-0.05) と下辺中央の突起幅 1.70 のみで、
+# ステム間隔 ±12.0 / ハウジング中心 y=+0.6 / ワイヤー溝 高さ 2.5・中心 y=+1.4 /
+# 突起深さ 1.2 は同図を 400dpi でラスタライズし 6.00/12.50 を基準に実測した値
+# (誤差 ±0.1mm 程度)。ワイヤー溝はスイッチ開口(14.0 角)とハウジングをつなぐ。
+# プレートマウント専用で PCB 側の要素は無し。ハウジングのプレート下への突出量は
+# 仕様書に無く、プレート下面〜PCB 間の必要クリアランスは未検証。
+# 外形は互いに重なる(Choc V2 と同じ流儀)ので、プレート CAD 側で union する。
+GATERON_LP_STAB_X = {2.0: 12.0}            # ステム位置 x = ±12.0。仕様書は 2U のみ
+GATERON_LP_PLATE_BODY = (6.0, 12.5, 0.6)   # (幅, 高さ, 中心y) ハウジング開口
+GATERON_LP_PLATE_TAB = (1.7, 1.7, 7.2)     # 下辺中央の突起(深さ 1.2、ハウジングと 0.5 重ねる)
+GATERON_LP_PLATE_WIRE = (2.5, 1.4)         # ワイヤー溝 (高さ, 中心y)。幅はステム間隔
 # (kind, layer, width, coords) kind: line=(x1,y1,x2,y2) / arc=(sx,sy,mx,my,ex,ey)
 CHOC_STAB_SEGMENTS = [
     # --- PCB スロット (Edge.Cuts): 本体 5.3x5.5 / ワイヤー 4.0x3.5, 角 R0.5
@@ -349,6 +366,22 @@ def choc_v2_plate_items(size, vertical=False):
     return items
 
 
+def gateron_lp_plate_items(size, vertical=False):
+    """Gateron LP 純正プレートマウントスタビ(KS-57B210T)用プレートカット線(User.5)。
+
+    ハウジング開口・下辺突起・ワイヤー溝の角丸矩形 3 種を描く。外形は互いに重なる
+    ため、プレート CAD 側で union して使う。PCB 側の要素は無い。
+    """
+    x = GATERON_LP_STAB_X[size]
+    items = []
+    for mirror in (1, -1):
+        for w, h, cy in (GATERON_LP_PLATE_BODY, GATERON_LP_PLATE_TAB):
+            items += rounded_rect_at(mirror * x, cy, w, h, "User.5", 0.05, vertical)
+    wh, wy = GATERON_LP_PLATE_WIRE
+    items += rounded_rect_at(0, wy, 2 * x, wh, "User.5", 0.05, vertical)
+    return items
+
+
 def choc_v2_stab_items(size, vertical=False):
     """Kailh Choc V2 スタビの PCB スロット(fp_rect, Edge.Cuts)を返す。"""
     items = []
@@ -572,7 +605,8 @@ def check_slot_clearance(base_name, s, rects):
 def make_variant(base_text, base_name, suffix, size, stab, diode=None,
                  vertical=False):
     """stab: None(スタビ要素なし) / "mx"(Cherry MX PCB 穴) /
-    "choc"(Choc V1 スロット) / "chocv2"(Choc V2 スロット)
+    "choc"(Choc V1 スロット) / "chocv2"(Choc V2 スロット) /
+    "gateronlp"(Gateron LP 純正プレートマウントスタビ。User.5 のみ)
     diode: None / DIODE_PLACEMENT の (cx, cy, vertical)(裏面 SMD ダイオード)
     vertical: True で縦向きキーキャップ(幅 1u × 高さ size u。スタビ要素も 90°回転)"""
     name = f"{base_name}_{suffix}"
@@ -604,6 +638,8 @@ def make_variant(base_text, base_name, suffix, size, stab, diode=None,
         check_slot_clearance(name, s, choc_v2_stab_slot_rects(size, vertical))
         inserts += (choc_v2_stab_items(size, vertical)
                     + choc_v2_plate_items(size, vertical))
+    elif stab == "gateronlp":
+        inserts += gateron_lp_plate_items(size, vertical)
     if diode:
         inserts += diode_items(*diode)
 
@@ -648,6 +684,13 @@ def make_variant(base_text, base_name, suffix, size, stab, diode=None,
                 + (" Rotated 90 deg for the vertical keycap (wire side at x=-8.28)."
                    if vertical else "")
                 + " For Choc V2 / Gateron KS-33 only (not Choc V1).")
+    elif stab == "gateronlp":
+        cap += (" Gateron Low Profile plate-mount stabilizer (KS-57B210T):"
+                " plate cuts on User.5 (overlapping outlines; union in plate CAD)."
+                " No PCB features; clearance between plate and PCB under the"
+                " stabilizer housing is not verified."
+                + (" Rotated 90 deg for the vertical keycap (wire side at x=-1.4)."
+                   if vertical else ""))
     elif (isinstance(size, str) and size.startswith("ISOEnter")) or (
             isinstance(size, float) and size >= STAB_MIN_SIZE):
         cap += " No stabilizer PCB features."
@@ -658,6 +701,9 @@ def make_variant(base_text, base_name, suffix, size, stab, diode=None,
         if (("Choc_V2" in base_name or "V1V2" in base_name
              or "Gateron" in base_name) and size in CHOC_V2_STAB_X):
             cap += " For Kailh Choc V2 stabilizers use the _ChocV2Stab variant."
+        if "Gateron" in base_name and size in GATERON_LP_STAB_X:
+            cap += (" For Gateron Low Profile plate-mount stabilizers use the"
+                    " _GateronLPStab variant.")
     if diode:
         cap += diode_descr(diode[2])
     m = re.search(r'\(descr "((?:\\.|[^"\\])*)"\)', s)
@@ -758,6 +804,9 @@ def main():
                           f"V2 スロットがパッド{hit[0]}と干渉({hit[1]:.2f}mm)")
                 else:
                     variants.append((f"{w:.2f}u_ChocV2Stab", w, "chocv2"))
+            if is_gateron and w in GATERON_LP_STAB_X:
+                # プレートマウント専用で PCB 要素が無いため干渉チェック不要
+                variants.append((f"{w:.2f}u_GateronLPStab", w, "gateronlp"))
         variants.append(("ISOEnter", "ISOEnter", None))
         variants.append(("ISOEnterFlip", "ISOEnterFlip", None))
         if is_mx:
@@ -787,6 +836,8 @@ def main():
                           f"V2 スロットがパッド{hit[0]}と干渉({hit[1]:.2f}mm)")
                 else:
                     variants.append((f"{sfx}_ChocV2Stab", h, "chocv2", True))
+            if is_gateron and h in GATERON_LP_STAB_X:
+                variants.append((f"{sfx}_GateronLPStab", h, "gateronlp", True))
 
         for suffix, size, stab, vert in variants:
             for dio in ((None, diode) if diode else (None,)):
