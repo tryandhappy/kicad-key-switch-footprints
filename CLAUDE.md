@@ -8,7 +8,7 @@
 `symbols/key-switch-diode.kicad_sym` は `_Diode` フットプリント用の一体シンボル(手書き)。
 `docs/` は README から参照する参考資料(プレート実物写真、Cherry MX LP 取付図面 PDF
 `cherry-mx-low-profile-drawing-MX1B-52NA-rev00.pdf`(Cherry の複製制限注記付きなので公開継続は要判断)、
-Choc V2 スタビのプレート干渉図 `chocv2-stab-plate-cantilever.svg`(スクリプト生成の説明図))。
+Choc V2 スタビのプレート干渉図 `chocv2-stab-plate-cantilever.svg`、Gateron LP スタビの溝図 `gateron-lp-stab-plate-groove.svg`(いずれもスクリプト生成の説明図))。
 
 **生成物を伴う変更の再生成順**: `python3 scripts/plate_cut_lines.py`(User.2〜4 を変えた時のみ)→
 `python3 scripts/generate_variants.py`(_Diode と variants)→ プレビュー SVG 再生成(下記)。

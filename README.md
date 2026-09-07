@@ -237,6 +237,7 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
       Choc V1（PCB スロット方式）より FR4 プレートに厳しい
   - **Gateron Low Profile 純正プレートマウントスタビ（KS-57B210T）用 → `_GateronLPStab` 版**
     （2026-09-07 追加。Gateron LP ベース 3 種 × 2.00u / 2.00u_Vertical、`_Diode` 版込みで 12 ファイル）。
+    図: [`docs/gateron-lp-stab-plate-groove.svg`](docs/gateron-lp-stab-plate-groove.svg)（ワイヤー溝がスイッチ開口を横切る様子）。
     Gateron 公式ストアで 2U 単品が買える純正部品で、対応スイッチは **Gateron LP（KS-33 / KS-27）**。
     **プレートマウント専用で PCB 側の要素は無い**（`Edge.Cuts` も NPTH も追加しない。
     ホットスワップ系ベースにも生成される）。スタビ用プレートカット線は `User.5`
