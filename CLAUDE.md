@@ -4,7 +4,8 @@
 `single.pretty/`(片面実装。手書き28+生成 `_Diode` 27)+`double.pretty/`(両面実装5)がベース本体、
 `preview/*.svg` が README 用のプレビュー画像(ベース33+`_Diode` 27)。リポジトリ直下はライブラリではない。
 `symbols/key-switch-diode.kicad_sym` は `_Diode` フットプリント用の一体シンボル(手書き)。
-`docs/` は README から参照する参考写真(プレート実物など)。
+`docs/` は README から参照する参考資料(プレート実物写真、Cherry MX LP 取付図面 PDF
+`cherry-mx-low-profile-drawing-MX1B-52NA-rev00.pdf`。図面は Cherry の複製制限注記付きなので公開継続は要判断)。
 
 **生成物を伴う変更の再生成順**: `python3 scripts/plate_cut_lines.py`(User.2〜4 を変えた時のみ)→
 `python3 scripts/generate_variants.py`(_Diode と variants)→ プレビュー SVG 再生成(下記)。

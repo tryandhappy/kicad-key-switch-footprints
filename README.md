@@ -41,11 +41,26 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
   **MX（Cherry 規定: 1.5mm プレート、プレート上面〜PCB 5.0mm）はこの構成では組めない**
   （MX の下部ハウジングが PCB に当たるため 3.8mm の隙間が必要。1.2mm プレートは
   ツメの掛かりが 0.3mm 浅くなる）。MX 用プレートは別スタック
+- **Cherry MX Low Profile もこの構成では組めない**（2026-09-07、Cherry 図面 MX1B-52NA rev.00 で確認。
+  [`docs/cherry-mx-low-profile-drawing-MX1B-52NA-rev00.pdf`](docs/cherry-mx-low-profile-drawing-MX1B-52NA-rev00.pdf)）。
+  図面の取付規定は **プレート厚 1.5 ±0.07mm**、開口 14 ±0.05mm 角（角 R max 0.5）、
+  ハウジング上端→フランジ下面 2.25 ±0.1 / ハウジング上端→下部ハウジング底 5.0 ±0.25 で、
+  下部ハウジング底が PCB 上面に座る構造なので **プレート上面〜PCB 上面 = 2.75mm**
+  （1.5mm プレートなら隙間 1.25mm）。本フォークの 2.2mm より **0.55mm 高く**、
+  ハウジング底が先に PCB に当たってフランジが浮き、ツメがプレート下面に届かない。
+  1.2mm プレートのままなら隙間 1.55mm が必要で Choc と両立しない。
+  PCB 下への突出はピン 3.1 ±0.25 / 中央ポスト 3.3 ±0.15、PCB 上の SMD LED は高さ max 0.75
+  （ハウジング底の窪みに入る補助 SMD 部品は max 1.6）。
+  図面の PCB 穴指定は中央 NPTH Ø6.5 ±0.05 / 固定ピン NPTH Ø2.5 ±0.05 at (0, 3.7) /
+  端子 Ø1.5 ±0.05 at (0, 6.05)・(4.13, 3.3)。`SW_MX_LowProfile_*` の座標は一致するが
+  穴径は上流（Keebio 系譜）のまま Ø6.25 / Ø2.3 / ドリル 1.2 と小さめ（未変更）
 
 - **レイヤ＝プレート案の排他選択。** 書き出すレイヤを 1 つ選べばプレートの種類が決まる。
   ハイブリッド系のフットプリントには該当レイヤが複数入っているが、共存してよい
 - **MX 系はすべて 14.00mm 角**（通常の Gateron は MX クローンで `SW_MX_*` を使う。
-  低背 2 種も開口は同じだが、推奨プレート厚が違う: Gateron LP は 1.2mm）
+  低背 2 種も開口は同じだが、推奨プレート厚が違う: Gateron LP は 1.20 (+0.01/−0.05)、
+  Cherry MX LP は 1.5 ±0.07。開口公差も Gateron 14.00 (+0.05/−0.02) / MX LP 14 ±0.05 で
+  公称は同じ。開口の XY は共用できるが板厚とスペーサー高さは別）
 - **★ 13.95 と 14.00 の差 0.05mm は JLCPCB のルーター公差（±0.2mm）より小さく、
   実物で区別できない可能性が高い。** 実物比較で差が出なければ V2 も 14.00 に寄せて
   `User.3` を廃止してよい（緩くなる側なので安全）。値の変更は
@@ -55,7 +70,13 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
   Gateron LP の 14.00 は公式データシートの取付図
   （[KS-27](https://www.gateron.co/pages/gateron-low-profile-mechanical-switch-datasheet) /
   [KS-33](https://www.gateron.co/pages/gateron-ks-33-low-profile-2-0-mechanical-switch-datasheet)）、
-  Cherry MX LP が 14×14 に入ることは
+  Cherry MX LP の 14 ±0.05・プレート厚 1.5・取付高さは Cherry 図面
+  [MX1B-52NA rev.00（2018-04-17）](docs/cherry-mx-low-profile-drawing-MX1B-52NA-rev00.pdf)
+  （Cherry が問い合わせ者にメールで配布したもの。
+  [geekhack の投稿](https://geekhack.org/index.php?topic=106825.0)に添付された PDF を保管。
+  公式サイトの Datasheet PDF には取付図が無い。図面左欄に Cherry の複製・再配布制限の
+  注記があるため、公開リポジトリに置き続けるかは要判断）、
+  14×14 に入ることの二次情報は
   [Deskthority wiki](https://deskthority.net/wiki/Cherry_MX_Low_Profile)
 - **検証**: KiCad 10.0.5 の `kicad-cli fp export svg` で 33 ファイル全部のパースと
   リリーフ形状の描画を確認済み。DXF 書き出しは正方形時代（リリーフ追加前）に
@@ -132,7 +153,7 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
 | 実装するスイッチ | MX プレートマウント<br>→ サフィックス無し | MX PCB マウント<br>→ `_MXPCBStab` | Kailh Choc 1350 (V1)<br>→ `_ChocV1Stab` | Kailh Choc V2<br>→ `_ChocV2Stab` |
 |---|---|---|---|---|
 | Cherry MX | ○ | ○ | ✕ | ✕ |
-| Cherry MX Low Profile | △ 高さ互換未検証 | △ 高さ互換未検証 | ✕ | ✕ |
+| Cherry MX Low Profile | ✕ ステム高さ不一致 [^mxlp-stab] | ✕ ステム高さ不一致 [^mxlp-stab] | ✕ | ✕ |
 | Kailh Choc V1 (PG1350) | ✕ | ✕ | ○ | ✕ |
 | Kailh Choc V2 (PG1353) | ✕ | ✕ | ✕ ワイヤー干渉 | ○ |
 | Gateron Low Profile | ✕ | ✕ | ✕ | ○ KS-33（KS-27 は情報なし） |
@@ -140,6 +161,13 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
 
 - 「プレートマウント」と言っても MX 用と Choc 用のスタビは別部品で互換性はない
   （プレート開口形状・高さ・PCB への要求がすべて異なる）
+
+[^mxlp-stab]: Cherry MX LP はステム上端が通常 MX より低く（プレート上面からハウジング上端 2.25 +
+    ステム 3.6mm）、MX 用スタビに載せると 2u 以上のキーだけキーキャップが浮く。Cherry は
+    MX LP 用スタビを単品販売しておらず、OEM キーボード（Corsair K70 LP / Cooler Master SK6xx /
+    Filco Stingray）は各社独自の細ワイヤースタビ。市販部品で組む手段が無いため ✕（2026-09-07 時点）。
+    スイッチ自体も国内自作キーボードショップの取り扱いが無く、DigiKey は MOQ 12,000、
+    LCSC は在庫切れで、小口は海外小売か Amazon の小分け出品に限られる
 - Hybrid ベースはスイッチ穴こそ MX / Choc 両対応だが、**スタビ付きキーは
   バリアント選択時点でどちらで組むか決める必要がある**（2u では MX NPTH 穴と
   Choc スロットが幾何的に共存できない）。Choc 側の可能性を残したい場合は
