@@ -31,9 +31,9 @@ variants-hybrid-pcb-only.pretty(MX×Choc ハイブリッド。PCB 互換のみ�
   (CPG1353G24D01)用の `_ChocV2Stab` 版も生成
   (2u のみ確認。PCB は矩形スロット 2 個の切り欠き(Edge.Cuts)+ プレート必須。
    プレートカット線は User.5)
-- Gateron LP ベースには Gateron 純正プレートマウントスタビ(KS-57B210T)用の
-  `_GateronLPStab` 版も生成(2u のみ = 仕様書がある寸法。PCB 側の要素は無く
-  プレートカット線 User.5 のみ。寸法は Gateron 仕様書の推奨開口図)
+- Gateron LP ベースには Gateron 純正プレートマウントスタビ(KS-57 Holder Module)用の
+  `_GateronLPStab` 版も生成(2u = KS-57B210T / 6.25u = KS-57B623T。PCB 側の要素は無く
+  プレートカット線 User.5 のみ。開口形状は 2 サイズ共通で違いはステム間隔だけ)
 - 裏面 SMD ダイオード付きの `_Diode` 版も生成する
   (SOD-123 / SOD-323 / MiniMELF 兼用の手半田ロングパッド。パッド 3=A / 4=K。
    ベース(コートヤードなし)への `_Diode` 版は single/double.pretty 内に
@@ -42,9 +42,10 @@ variants-hybrid-pcb-only.pretty(MX×Choc ハイブリッド。PCB 互換のみ�
   keycap.py、marbastlib (https://github.com/ebastler/marbastlib,
   CERN-OHL-P v2) STAB_MX_*.kicad_mod / STAB_choc_*.kicad_mod、
   Keebio-Parts.pretty (https://github.com/keebio/Keebio-Parts.pretty, MIT)
-  Kailh-Choc-V2-2u-Stabilizer-CPG1353G24D01-Cutout.kicad_mod、および
+  Kailh-Choc-V2-2u-Stabilizer-CPG1353G24D01-Cutout.kicad_mod、
   kb-plategen (https://github.com/keebio/kb-plategen, MIT)
-  src/maker_models/StabilizerCutout.ts (MX/Choc V2 のプレートカット寸法)
+  src/maker_models/StabilizerCutout.ts (MX/Choc V2 のプレートカット寸法)、および
+  Gateron 製品仕様書 KS-57B210T (2U) / KS-57B623T (6.25U)
 
 実行: python3 scripts/generate_variants.py
 """
@@ -126,17 +127,21 @@ MX_PLATE_CUT = (6.75, 14.0, 1.0)   # (幅, 高さ, 中心y)。ステム位置は
 # (kb-plategen も union して出力している)ので、プレート CAD 側で union する
 CHOC_V2_PLATE_PARTS = [(5.95, 7.95, 0.3441), (4.55, 6.25, 6.7559)]  # (幅,高さ,中心y)
 CHOC_V2_PLATE_WIRE = (1.4, 8.2809)  # ワイヤー溝 (高さ, 中心y)。幅はステム間隔
-# Gateron Low Profile 純正プレートマウントスタビ (KS-57B210T, 2U) のプレートカット。
-# 出典: Gateron 製品仕様書 "GATERON Low Profile Plate Mounted Stabilizer 2U"
-# (KS-57B210T) 4. Mounting Options の推奨開口図。図に数値があるのはハウジング
-# 6.00(+0.03/-0.05) x 12.50(+0.03/-0.05) と下辺中央の突起幅 1.70 のみで、
-# ステム間隔 ±12.0 / ハウジング中心 y=+0.6 / ワイヤー溝 高さ 2.5・中心 y=+1.4 /
-# 突起深さ 1.2 は同図を 400dpi でラスタライズし 6.00/12.50 を基準に実測した値
-# (誤差 ±0.1mm 程度)。ワイヤー溝はスイッチ開口(14.0 角)とハウジングをつなぐ。
+# Gateron Low Profile 純正プレートマウントスタビ (KS-57 Holder Module) のプレートカット。
+# 出典: Gateron 製品仕様書 "GATERON Low Profile Plate Mounted Stabilizer"
+# 2U = KS-57B210T / 6.25U = KS-57B623T (いずれも図面 Version 3, 2023-02-06)。
+# ステム間隔は製品図面の実寸 (2U: 24.00±0.15 / 6.25U: 100.00±0.15) から。
+# プレート開口は同仕様書 4. Mounting Options の推奨開口図で、2U と 6.25U で
+# 図も数値も同一。図に数値があるのはハウジング 6.00(+0.03/-0.05) x
+# 12.50(+0.03/-0.05) と下辺中央の突起幅 1.70 のみで、ハウジング中心 y=+0.6 /
+# ワイヤー溝 高さ 2.5・中心 y=+1.4 / 突起深さ 1.2 は同図を 400dpi でラスタライズし
+# 6.00/12.50 を基準に実測した値 (誤差 ±0.1mm 程度)。
+# ワイヤー溝はスイッチ開口(14.0 角)とハウジングをつなぐ。
 # プレートマウント専用で PCB 側の要素は無し。ハウジングのプレート下への突出量は
 # 仕様書に無く、プレート下面〜PCB 間の必要クリアランスは未検証。
 # 外形は互いに重なる(Choc V2 と同じ流儀)ので、プレート CAD 側で union する。
-GATERON_LP_STAB_X = {2.0: 12.0}            # ステム位置 x = ±12.0。仕様書は 2U のみ
+GATERON_LP_STAB_X = {2.0: 12.0, 6.25: 50.0}   # ステム位置 x = ±offset [mm]
+GATERON_LP_PART_NO = {2.0: "KS-57B210T", 6.25: "KS-57B623T"}   # descr 用の型番
 GATERON_LP_PLATE_BODY = (6.0, 12.5, 0.6)   # (幅, 高さ, 中心y) ハウジング開口
 GATERON_LP_PLATE_TAB = (1.7, 1.7, 7.2)     # 下辺中央の突起(深さ 1.2、ハウジングと 0.5 重ねる)
 GATERON_LP_PLATE_WIRE = (2.5, 1.4)         # ワイヤー溝 (高さ, 中心y)。幅はステム間隔
@@ -697,7 +702,8 @@ def make_variant(base_text, base_name, suffix, size, stab, diode=None,
                    if vertical else "")
                 + " For Choc V2 / Gateron KS-33 only (not Choc V1).")
     elif stab == "gateronlp":
-        cap += (" Gateron Low Profile plate-mount stabilizer (KS-57B210T):"
+        cap += (" Gateron Low Profile plate-mount stabilizer"
+                f" ({GATERON_LP_PART_NO[size]}):"
                 " plate cuts on User.5 (overlapping outlines; union in plate CAD)."
                 " No PCB features; clearance between plate and PCB under the"
                 " stabilizer housing is not verified."

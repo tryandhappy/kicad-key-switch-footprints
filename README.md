@@ -12,7 +12,7 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
 |---|---|---|---|---|
 | **Kailh Choc（V1 でも V2 でも）** | `variants-choc.pretty` | `SW_Kailh_Choc_V1V2_HotSwap_Hybrid_1.00u` | `User.3`（13.95。V1/V2 でプレート共用） | `..._2.00u` を**スタビ無し**で使う（Choc のスタビは入手性・FR4 プレート強度とも難あり）。2u は親指キーに限るか 1.5u にすると傾きが目立たない（下記「スタビ無しの 2u」） |
 | **Cherry MX 互換（通常の高さ）** | `variants-mx.pretty` | `SW_MX_HotSwap_PTH_1.00u` | `User.2`（14.00） | `..._2.00u_MXPCBStab`（Cherry PCB マウントスタビ。プレートマウントでも可） |
-| **Gateron Low Profile 2.0（KS-33）** | `variants-gateron.pretty` | `SW_Gateron_LowProfile_HotSwap_PTH_1.00u` | `User.2`（14.00） | **FR4 プレートならスタビ無し**（`..._2.00u`）。`..._2.00u_GateronLPStab`（Gateron 純正プレートマウントスタビ）は**金属プレート前提**（FR4 では取り外し時に開口脇の柱が折れ得る。下記警告） |
+| **Gateron Low Profile 2.0（KS-33）** | `variants-gateron.pretty` | `SW_Gateron_LowProfile_HotSwap_PTH_1.00u` | `User.2`（14.00） | **FR4 プレートならスタビ無し**（`..._2.00u`）。`..._2.00u_GateronLPStab` / `..._6.25u_GateronLPStab`（Gateron 純正プレートマウントスタビ）は**金属プレート前提**（FR4 では取り外し時に開口脇の柱が折れ得る。下記警告） |
 
 - サイズは `_1.25u` `_1.50u` `_2.00u` … `_ISOEnter` `_2.00u_Vertical` など（一覧は下のバリアント節）。
   裏面ダイオード込みにしたいときは末尾に `_Diode` を付けた版を使う（回路図は `symbols/` の `SW_Key_Diode`）
@@ -173,12 +173,12 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
 ## ★ このフォーク限定: キーキャップサイズバリアント `variants-*.pretty`（2026-08-30）
 
 **`single.pretty/` + `double.pretty/` の 33 ベースフットプリントから、
-キーキャップサイズ別のバリアント（1190 ファイル）をスイッチ種別の
+キーキャップサイズ別のバリアント（1196 ファイル）をスイッチ種別の
 4 ライブラリに自動生成してある**（`variants-mx` 464 / `variants-choc` 464 /
-`variants-hybrid-pcb-only` 134 / `variants-gateron` 128。それぞれ別ライブラリとして登録）。
+`variants-hybrid-pcb-only` 134 / `variants-gateron` 134。それぞれ別ライブラリとして登録）。
 再生成は `python3 scripts/generate_variants.py`。
 **既定では `_alt*` 4 ベースと `MX_LowProfile*` 3 ベースを生成対象外**にしている
-（2026-09-07。バリアントも `_Diode` ベースも作らない。`--all` で含めると 1540 + 27 になる）。
+（2026-09-07。バリアントも `_Diode` ベースも作らない。`--all` で含めると 1546 + 27 になる）。
 `variants-hybrid-pcb-only`（旧 `variants-mx-choc`。2026-09-07 改名）は MX × Choc
 ハイブリッドで、**PCB 互換のみ**（プレート・スタビは別設計）であることを名前で示す。
 
@@ -264,21 +264,33 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
       支点がちょうど開口脇の柱（x 7〜9mm）に来る**。11.2mm の片持ち梁の破断目安は先端約 19N
       （面外）なので、テコ操作 1 回で折れ得る。FR4 で試す場合は「プレートをテコにせず真上に引く」
       運用が前提
-  - **Gateron Low Profile 純正プレートマウントスタビ（KS-57B210T）用 → `_GateronLPStab` 版**
-    （2026-09-07 追加。Gateron LP ベース 3 種 × 2.00u / 2.00u_Vertical、`_Diode` 版込みで 12 ファイル）。
+  - **Gateron Low Profile 純正プレートマウントスタビ（KS-57 Holder Module）用 → `_GateronLPStab` 版**
+    （2026-09-07 追加、2026-09-19 に 6.25u 追加。Gateron LP ベース 3 種 ×
+    2.00u / 2.00u_Vertical / 6.25u、`_Diode` 版込みで 18 ファイル）。
+    型番は **2U = KS-57B210T / 6.25U = KS-57B623T**。
     図: [`docs/gateron-lp-stab-plate-groove.svg`](docs/gateron-lp-stab-plate-groove.svg)（ワイヤー溝がスイッチ開口を横切る様子）。
-    Gateron 公式ストアで 2U 単品が買える純正部品で、対応スイッチは **Gateron LP（KS-33 / KS-27）**。
+    Gateron 公式ストアで買える純正部品で、対応スイッチは **Gateron LP（KS-33 / KS-27）**。
+    スイッチ側の世代（LP 1.0 / 2.0 / 3.0）でスタビは変わらない。**スタビ自体に V1/V2/V3 の
+    世代表記は無い**（黒と Sky＝青の色違いのみ。"Gateron Plate Mounted V2 Stabilizer" は
+    MX 通常高さ用の別物）。
     **プレートマウント専用で PCB 側の要素は無い**（`Edge.Cuts` も NPTH も追加しない。
     ホットスワップ系ベースにも生成される）。スタビ用プレートカット線は `User.5`
     （ハウジング開口 6.00×12.50 中心 (±12.0, +0.6) + 下辺中央の突起 1.70 幅・深さ 1.2 +
     ワイヤー溝 全幅×2.5 中心 y=+1.4、角 R0.5。3 種の角丸矩形は互いに重なるので
     プレート CAD 側で union する）。寸法出典は Gateron 製品仕様書
-    [GATERON Low Profile Plate Mounted Stabilizer 2U（KS-57B210T）](https://gateron.com/u_file/2311/22/file/GATERONLowProfilePlateMountedStabilizer2U-KS-57B210T.pdf)
-    の推奨開口図。**図に数値があるのは 6.00 (+0.03/−0.05)・12.50 (+0.03/−0.05)・突起幅 1.70 のみ**で、
-    ステム間隔 ±12.0・ハウジング中心 y・溝の高さと位置・突起深さは同図を 400dpi で
-    ラスタライズして実測した値（誤差 ±0.1mm 程度）。**ハウジングのプレート下への突出量は
+    [2U（KS-57B210T）](https://gateron.com/u_file/2311/22/file/GATERONLowProfilePlateMountedStabilizer2U-KS-57B210T.pdf) /
+    [6.25U（KS-57B623T）](https://gateron.com/u_file/2311/22/file/GATERONLowProfilePlateMountedStabilizer625U-KS-57B623T.pdf)
+    （いずれも図面 Version 3, 2023-02-06）。**推奨開口図は 2U と 6.25U で図も数値も同一で、
+    違いはステム間隔だけ**（製品図面の実寸 **2U = 24.00±0.15 / 6.25U = 100.00±0.15**、
+    つまり x = ±12.0 / ±50.0。6.25U は MX の 6.25u スタビと同じ 100mm 間隔）。
+    **開口図に数値があるのは 6.00 (+0.03/−0.05)・12.50 (+0.03/−0.05)・突起幅 1.70 のみ**で、
+    ハウジング中心 y・溝の高さと位置・突起深さは同図を 400dpi で
+    ラスタライズして実測した値（誤差 ±0.1mm 程度）。
+    ハウジング本体は 6.00±0.1 × 17.00±0.2（開口 12.50 より大きくプレート上面に載る）。**ハウジングのプレート下への突出量は
     仕様書に無く、プレート下面〜PCB 間（本フォークの想定は 1.0mm）に収まるかは未検証**。
-    6.25U も Gateron 公式にあるがステム間隔の資料が無いため生成していない。
+    **6.25u のワイヤー溝は全幅 100mm × 2.5mm の長いスリットになる**（2u と同じ形状のまま
+    間隔だけ広がるため）。溝の上下は x=±50 の外側でしかつながらないので、
+    FR4 プレートでは 2u 以上に剛性が落ちる。金属プレート前提で考えること。
     **⚠ FR4 プレートでの強度注意（2026-09-07）**: ワイヤー溝（y 0.15〜2.65）がスイッチ開口
     （x=±7.0）とハウジング開口（x=±9.0）の間の幅 2.0mm の柱を横切るため、柱は上 5.8mm / 下 4.2mm の
     片持ち梁 2 本になる（島にはならず、両方とも根元は本体に付く。図参照）。1.2mm FR4 の概算では
@@ -301,7 +313,7 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
 | Cherry MX Low Profile | ✕ ステム高さ不一致 [^mxlp-stab] | ✕ ステム高さ不一致 [^mxlp-stab] | ✕ | ✕ | ✕ |
 | Kailh Choc V1 (PG1350) | ✕ | ✕ | ○ | ✕ | ✕ |
 | Kailh Choc V2 (PG1353) | ✕ | ✕ | ✕ ワイヤー干渉 | ○ ⚠ FR4 1.2mm では柱が片持ち梁（上記警告） | ✕ 情報なし |
-| Gateron Low Profile | ✕ | ✕ | ✕ | ○ KS-33（KS-27 は情報なし）⚠ 同上 | ○ 純正（PCB 側要素なし、プレート下クリアランス未検証） |
+| Gateron Low Profile | ✕ | ✕ | ✕ | ○ KS-33（KS-27 は情報なし）⚠ 同上 | ○ 純正 2U / 6.25U（PCB 側要素なし、プレート下クリアランス未検証） |
 | Hybrid（MX × Choc） | 実際に載せるスイッチの行に従う | 同左 | 同左 | 同左 | ✕（Gateron ベースのみ生成） |
 
 - 「プレートマウント」と言っても MX 用と Choc 用のスタビは別部品で互換性はない
@@ -333,9 +345,10 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
   kiswitch 準拠
 - **注意**: キーキャップ範囲のコートヤードは、キャップ下に置くダイオード等も
   DRC エラーにする。物理的に問題ない配置は KiCad 側で除外指定するか、ベース版を使う
-- **検証**: KiCad 10.0.5 の `kicad-cli fp export svg` で全バリアント（`--all` 時の 1540 ファイル）の
+- **検証**: KiCad 10.0.5 の `kicad-cli fp export svg` で全バリアント（`--all` 時の 1546 ファイル）の
   パースを確認済み（`_GateronLPStab` は横・縦 1 件ずつ描画を目視確認。ライブラリ改名後の
-  `variants-hybrid-pcb-only` 134 ファイルも再 export）。コートヤード寸法・スタビ穴座標は
+  `variants-hybrid-pcb-only` 134 ファイルも再 export。6.25u 追加後に
+  `variants-gateron` 134 ファイルを再 export してエラー無しと 6.25u の描画を確認、2026-09-19）。コートヤード寸法・スタビ穴座標は
   スクリプトで機械チェック済み。
   プレビュー画像はベース 33 + `_Diode` ベース 22 のみ
   （バリアントは枚数が膨大なため生成しない）
@@ -391,7 +404,7 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
 | `variants-mx.pretty/` | バリアント: MX 純系（ハイブリッド除く。生成物） | 464 |
 | `variants-choc.pretty/` | バリアント: Choc 純系（V1 / V2 / Choc V1V2 ハイブリッド＝プレート共用可。生成物） | 464 |
 | `variants-hybrid-pcb-only.pretty/` | バリアント: MX × Choc ハイブリッド。**PCB 互換のみ**、プレート・スタビは別設計（生成物。旧 `variants-mx-choc`） | 134 |
-| `variants-gateron.pretty/` | バリアント: Gateron Low Profile（生成物） | 128 |
+| `variants-gateron.pretty/` | バリアント: Gateron Low Profile（生成物） | 134 |
 
 このほか `symbols/key-switch-diode.kicad_sym`（`_Diode` フットプリント用の
 スイッチ＋ダイオード一体シンボル `SW_Key_Diode`）をシンボルライブラリとして登録できる。

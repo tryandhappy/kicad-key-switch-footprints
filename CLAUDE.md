@@ -25,7 +25,7 @@ Choc V2 スタビのプレート干渉図 `chocv2-stab-plate-cantilever.svg`、G
 - **`variants-*.pretty/`(生成物、スイッチ種別で4ライブラリ)**: キーキャップサイズ別バリアント。
   variants-mx(MX純系464) / variants-choc(Choc純系464。Choc V1V2 ハイブリッド含む=プレート共用可) /
   variants-hybrid-pcb-only(MX×Chocハイブリッド134。PCB互換のみ、旧 variants-mx-choc) /
-  variants-gateron(Gateron LP 128)。`--all` 時は 1540。
+  variants-gateron(Gateron LP 134)。`--all` 時は 1546。
   再生成は `python3 scripts/generate_variants.py`(全削除→再生成。手編集禁止、直すのはスクリプト側)
   - コートヤード = キーキャップ範囲。外縁は公称(w×19.05×19.05)より各辺0.025mm控え
     (1u なら中心線±9.475・線幅0.05で外縁19.00mm角)。19.05mmピッチの隣接キーと誤DRCしないため
@@ -49,11 +49,14 @@ Choc V2 スタビのプレート干渉図 `chocv2-stab-plate-cantilever.svg`、G
     **FR4 1.2mm では非推奨**: ワイヤー溝がスイッチ左右の柱(幅2.05)を切り離して片持ち梁(11.2mm)にし、
     開口下辺と溝の間に 0.6mm の帯しか残らない(旧 R1.0 リリーフでは帯が島になっていた。現行 R0.6 では
     両端でつながるが細い。図 `docs/chocv2-stab-plate-cantilever.svg`、詳細は README)
-  - `_GateronLPStab` = Gateron LP 純正プレートマウントスタビ(KS-57B210T)用(Gateron ベース3種×2.00u/2.00u_Vertical)。
-    **PCB 側要素なし、User.5 のプレートカット線のみ**(ハウジング 6.00×12.50 中心(±12.0,+0.6)+下辺突起 1.7 幅+
-    ワイヤー溝 全幅×2.5 中心y=+1.4、重なる外形は union)。数値は Gateron 仕様書の推奨開口図、
-    図に無い値(ステム間隔・y 位置・溝寸法)は 400dpi ラスタ実測(±0.1mm)。プレート下クリアランス未検証。
-    定数 `GATERON_LP_STAB_X` / `GATERON_LP_PLATE_*`
+  - `_GateronLPStab` = Gateron LP 純正プレートマウントスタビ(2U=KS-57B210T / 6.25U=KS-57B623T)用
+    (Gateron ベース3種×2.00u/2.00u_Vertical/6.25u)。
+    **PCB 側要素なし、User.5 のプレートカット線のみ**(ハウジング 6.00×12.50 中心(±x,+0.6)+下辺突起 1.7 幅+
+    ワイヤー溝 全幅×2.5 中心y=+1.4、重なる外形は union)。**開口形状は 2U/6.25U 共通で違いはステム間隔だけ**
+    (x=±12.0 / ±50.0。製品図面の実寸 24.00±0.15 / 100.00±0.15)。開口数値は Gateron 仕様書の推奨開口図、
+    図に無い値(y 位置・溝寸法・突起深さ)は 400dpi ラスタ実測(±0.1mm)。プレート下クリアランス未検証。
+    6.25u はワイヤー溝が全幅 100mm のスリットになるので FR4 では特に不利。
+    定数 `GATERON_LP_STAB_X` / `GATERON_LP_PART_NO` / `GATERON_LP_PLATE_*`
   - `_Diode` = 裏面SMDダイオードパッド付き(B.Cu/B.Paste/B.Mask の 2.0×1.4mm パッド ±1.6mm =
     SOD-123/SOD-323/MiniMELF 兼用手半田ロング。パッド3=A/4=K、B.SilkSカソードバー+B.Fab外形)。
     配置は全種別統一で左端縦置き(−7.2,−4.0)、カソード=上。中央北側 y≈−4.7 のLED窓
