@@ -100,7 +100,8 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
   向けの構成。
   **MX（Cherry 規定: 1.5mm プレート、プレート上面〜PCB 5.0mm）はこの構成では組めない**
   （MX の下部ハウジングが PCB に当たるため 3.8mm の隙間が必要。1.2mm プレートは
-  ツメの掛かりが 0.3mm 浅くなる）。MX 用プレートは別スタック
+  ツメの掛かりが 0.3mm 浅くなる）。MX 用プレートは別スタック。
+  **MX のプレートマウントスタビも同じ規定スタックが前提**（スタビライザー節を参照）
 - **Cherry MX Low Profile もこの構成では組めない**（2026-09-07、Cherry 図面 MX1B-52NA rev.00 で確認。
   [`docs/cherry-mx-low-profile-drawing-MX1B-52NA-rev00.pdf`](docs/cherry-mx-low-profile-drawing-MX1B-52NA-rev00.pdf)）。
   図面の取付規定は **プレート厚 1.5 ±0.07mm**、開口 14 ±0.05mm 角（角 R max 0.5）、
@@ -206,7 +207,19 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
   縦向きなら生成される（干渉チェックで自動判定。全層の図形・パッドとの干渉なしを確認済み）
 - **スタビライザー**（2u 以上と ISO Enter）:
   - **サフィックス無し版 = スタビ用の PCB 要素なし**。MX のプレートマウントスタビは
-    そのまま使える
+    そのまま使える（プレート開口線が欲しい場合は `_MXPCBStab` 版を使う。下記）
+    - **⚠ プレートマウント MX スタビのスタック要件（2026-09-20）**: 開口形状・ステム間隔は
+      メーカー（Cherry / Durock / KEYCOOL 等）によらず Cherry 規格で共通なので
+      フットプリントは無改造で使えるが、**プレートのスタックは MX 規定に従う必要がある**。
+      **プレート厚 1.5mm**（ツメの掛かりがこの厚みで決まる。1.2mm では 0.3mm 浅く、
+      スタビもスイッチも保持が緩む）+ **プレート上面〜PCB 上面 5.0mm**
+      （= プレート下面と PCB の隙間 3.5mm）。
+      **本フォークの想定構成（1.2mm + 隙間 1.0mm）では組めない**ので MX 用は別スタックにする
+      （上記「想定プレート構成」と同じ理由。支配的なのは MX スイッチ側の下部ハウジングで、
+      プレートマウントスタビ本体はその空間に収まる＝実測は未確認）
+    - スタビのワイヤーは**プレート下面と PCB の間を横切る**ので、キー中心から
+      **y ≈ +6〜9mm の帯（PCB 上面）に背の高い部品を置かない**
+      （PCB マウント版の大穴 y=+8.255 がワイヤー側。`_Diode` パッドは裏面なので無関係）
   - **Cherry MX PCB マウント用 → `_MXPCBStab` 版**（MX 系ベース 12 種のみ。`--all` なら 18 種）。
     NPTH 小穴 Ø3.048（y=−6.985）+ 大穴 Ø3.9878（y=+8.255。小穴と 15.24mm 間隔）、
     ステム位置は 2u系=±11.938 / 3u=±19.05 / 4.5u=±33.3375 / 6u=±47.625 /
@@ -333,6 +346,8 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
 - MX スタビ用のプレート開口線は `_MXPCBStab` 版の `User.5` にある（Cherry
   スタイル = プレートマウント・PCB マウント両対応）。プレートマウントスタビで
   組む場合もカット線目的で `_MXPCBStab` 版を使ってよい（NPTH 穴は無害）
+  - プレートマウントで組む場合のスタック要件（1.5mm プレート + 隙間 3.5mm）は
+    上記「スタビライザー」節を参照。**本フォークの想定構成では組めない**
 - **寸法出典**: [kiswitch](https://github.com/kiswitch/kiswitch)
   （`KiSwitch/switch.py` StabilizerCherryMX のステム間隔 / `keycap.py`）と
   [marbastlib](https://github.com/ebastler/marbastlib)（CERN-OHL-P v2。
