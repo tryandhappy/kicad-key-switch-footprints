@@ -96,7 +96,8 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
   - `User.1`（化粧カバー）はスイッチを掴まない（上部ハウジングの角は丸い）のでリリーフなし
 - **想定プレート構成（このフォークの設計前提、2026-09-03）**: プレートは **1.2mm 厚 FR4 基板**、
   **プレート下面と PCB 上面の隙間 1.0mm**（プレート上面から PCB 上面まで 2.2mm）。
-  Kailh Choc V1/V2 の規定（1.3mm プレート + 0.9mm = 2.2mm）向けの構成。
+  Kailh Choc V1/V2 の取付高さ（上面〜PCB 2.2mm）向けの構成（ツメの掛かりは V1 1.30 / V2 1.65 で、
+  1.2mm 板では V2 のツメが掛からない。下の「スイッチ別のプレート厚・取付高さ」表）。
   **Gateron LP はこの構成では組めない**（2026-09-27 データシートで確認）: 公式図面
   （KS-27 / KS-33 とも）でフランジ下面〜下部ハウジング底面が **2.50**、ツメの掛かり（＝プレート厚）が
   **1.20±0.05** なので、**プレート下面〜PCB の隙間 1.30mm（上面〜PCB 2.5mm）**が必要。
@@ -130,7 +131,7 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
 
   | ハイブリッド | 開口 XY | 高さ（上面〜PCB） | プレート共用 |
   |---|---|---|---|
-  | Kailh Choc V1V2（THT / HotSwap） | 13.80 vs 13.95、差 0.15 | どちらも 2.2mm（Kailh 規定 1.3 + 0.9） | **実用上可** |
+  | Kailh Choc V1V2（THT / HotSwap） | 13.80 vs 13.95、差 0.15 | どちらも 2.2mm（Kailh 図面。ツメの掛かりは V1 1.30 / V2 1.65） | **実用上可** |
   | MX × Choc V1V2（THT / HotSwap / double / alt1） | 14.00 vs 13.95 は差 0.05 で実質同じ、V1 は 0.2 差 | MX 5.0 vs Choc 2.2 | 不可（高さが 2.8mm 違う） |
   | MX LP × Choc V1V2 | 14.00 vs 13.95 は実質同じ | MX LP 2.75 vs Choc 2.2 | 不可（0.55 足りず MX LP のツメが掛からない） |
 
@@ -175,6 +176,38 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
   DXF 書き出し（円弧の連結）は未確認
 - `preview/` の画像もカット線入りで再生成してある
   （`kicad-cli fp export svg` + 黒背景化。ベースは上流コミット `b4afad5`）
+
+### スイッチ別のプレート厚・取付高さ（メーカー図面、2026-10-02）
+
+| スイッチ | プレート厚 | 隙間（プレート下面〜PCB 上面） | プレート上面〜PCB 上面 | 本フォーク想定構成（1.2 + 1.0 = 2.2） |
+|---|---|---|---|---|
+| Cherry MX | 1.5 ±0.1 | 3.5 | 5.0 (+0.3) | ✕ 2.8mm 足りない |
+| Cherry MX Low Profile | 1.5 ±0.07 | 1.25 | 2.75 | ✕ 0.55mm 足りない |
+| TTC KS32 | 不明 | 不明 | 不明 | 未確認 |
+| Kailh Choc V1 (PG1350) | 1.30（ツメの掛かり） | 0.9 | 2.2 | ○（板が 0.1mm 薄い分だけ緩い） |
+| Kailh Choc V2 (PG1353) | 1.65（ツメの掛かり） | 0.55 | 2.2 | △ 高さは合うが **ツメが掛からない**（板が 0.45mm 薄い） |
+| Gateron Low Profile（KS-27 / KS-33） | 1.20 (+0.01/−0.05) | 1.3 | 2.5 | ✕ 0.3mm 足りない |
+
+- 単位 mm。隙間 = 上面〜PCB − プレート厚（図面に直接の記載は無い）
+- 「足りない」= ハウジング底が先に PCB に当たってフランジが浮き、ツメがプレート下面に届かない
+- **Kailh 図面はプレート厚を指定していない**。フランジ下面〜ツメの距離（＝挟める板厚）と
+  フランジ下面〜ハウジング底（2.20）だけを示す。V1 は 1.2mm 板でも嵌まる報告あり
+  （[SofleKeyboard #136](https://github.com/josefadamcik/SofleKeyboard/issues/136)）
+- **Choc V2 を 1.2mm 板で使うと、ツメがプレート下面から 0.45mm 離れる**。スイッチを
+  保持するのは PCB のはんだかソケットだけ。ツメで固定したいなら 1.6mm 級の板にする
+  （[cyril279 revlp/41_1353](https://github.com/cyril279/keyboards/blob/main/revlp/41_1353/README.md)
+  も「V2 をクリップさせるなら 1.6mm」）
+- **出典**:
+  - Cherry MX: 5.0 は [MX Series データシート](https://github.com/keyboardio/keyswitch_documentation/blob/master/datasheets/Cherry/mx_series.pdf)
+    の Mounting Options（0.197 +0.012 in）。1.5 ±0.1 は
+    [ai03 wiki](https://wiki.ai03.com/books/case-and-plate-design/page/switch-dimensions-and-physical-specifications)（二次情報）
+  - Cherry MX LP: Cherry 図面 [MX1B-52NA rev.00](docs/cherry-mx-low-profile-drawing-MX1B-52NA-rev00.pdf)（上記）
+  - Choc V1: Kailh 図面 [CPG135001D01](https://github.com/keyboardio/keyswitch_documentation/blob/master/datasheets/Kailh/CPG135001D01.pdf)（A0 2017-03-31）
+  - Choc V2: Kailh 図面 [CPG135301D02](https://github.com/keyboardio/keyswitch_documentation/blob/master/datasheets/Kailh/CPG135301D02-2.pdf)（A0 2020-04-15）。
+    暫定版の [CPG135301D01](https://github.com/keyboardio/keyswitch_documentation/blob/master/datasheets/Kailh/CPG135301D01.pdf)（2019-10-25）も同じ値
+  - Gateron LP: 公式データシート（KS-27 / KS-33、上記）
+  - TTC KS32: 取付図面が見つからない（TTC 公式・[Deskthority](https://deskthority.net/wiki/TTC_KS32_series) とも記載なし）。
+    上流の互換表では MX LP と PCB 互換とされるが、高さが同じかは未確認
 
 ## ★ このフォーク限定: キーキャップサイズバリアント `variants-*.pretty`（2026-08-30）
 
