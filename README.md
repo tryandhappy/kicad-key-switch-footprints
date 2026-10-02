@@ -184,8 +184,8 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
 | Cherry MX | 1.5 ±0.1 | 3.5 | 5.0 (+0.3) | ✕ 2.8mm 足りない |
 | Cherry MX Low Profile | 1.5 ±0.07 | 1.25 | 2.75 | ✕ 0.55mm 足りない |
 | TTC KS32 | 不明 | 不明 | 不明 | 未確認 |
-| Kailh Choc V1 (PG1350) | 1.30（ツメの掛かり） | 0.9 | 2.2 | ○（板が 0.1mm 薄い分だけ緩い） |
-| Kailh Choc V2 (PG1353) | 1.65（ツメの掛かり） | 0.55 | 2.2 | △ 高さは合うが **ツメが掛からない**（板が 0.45mm 薄い） |
+| Kailh Choc V1 (PG1350) | 1.30 ±0.10（ツメの掛かり、未実測） | 0.9 | 2.2 ±0.10 | ○（板が 0.1mm 薄い分だけ緩い） |
+| Kailh Choc V2 (PG1353) | 1.65 ±0.10（ツメの掛かり、未実測） | 0.55 | 2.2 ±0.10 | △ 高さは合うが **ツメが掛からない**（板が 0.45mm 薄い） |
 | Gateron Low Profile（KS-27 / KS-33） | 1.20 (+0.01/−0.05) | 1.3 | 2.5 | ✕ 0.3mm 足りない |
 
 - 単位 mm。隙間 = 上面〜PCB − プレート厚（図面に直接の記載は無い）
@@ -193,7 +193,11 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
 - **Kailh 図面はプレート厚を指定していない**。フランジ下面〜ツメの距離（＝挟める板厚）と
   フランジ下面〜ハウジング底（2.20）だけを示す。V1 は 1.2mm 板でも嵌まる報告あり
   （[SofleKeyboard #136](https://github.com/josefadamcik/SofleKeyboard/issues/136)）
-- **Choc V2 を 1.2mm 板で使うと、ツメがプレート下面から 0.45mm 離れる**。スイッチを
+- **Kailh の ±0.10 は図面の一般公差**（表題欄「未注尺寸公差」の 5mm 以下 = ±0.10。寸法そのものに
+  個別公差は書かれていない）。V1 は 1.20〜1.40、V2 は 1.55〜1.75 になる。
+  **実物は未実測**（2026-10-02 時点）。ツメは弾性のある返しなので、実際に保持できる板厚の範囲は
+  ノギスでの実測か、1.2mm / 1.6mm のテストプレートでの嵌め比べで確かめる
+- **Choc V2 を 1.2mm 板で使うと、ツメがプレート下面から 0.45mm 離れる**（公差込みで 0.35〜0.55）。スイッチを
   保持するのは PCB のはんだかソケットだけ。ツメで固定したいなら 1.6mm 級の板にする
   （[cyril279 revlp/41_1353](https://github.com/cyril279/keyboards/blob/main/revlp/41_1353/README.md)
   も「V2 をクリップさせるなら 1.6mm」）

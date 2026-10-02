@@ -80,7 +80,7 @@ Choc V2 スタビのプレート干渉図 `chocv2-stab-plate-cantilever.svg`、G
   外端 ±7.25(14.00 の場合)。`_MXPCBStab` 2u 系のスタビ開口(x=±8.563)との梁は 1.31mm。Choc V2 スタビ溝(y 7.58〜)まで 0.36 残る。
   参考写真は `docs/plate-corner-relief-sample.jpeg`(Waveshare ScreenKey Module 付属プレート)
   **想定プレート構成**: 1.2mm 厚 FR4 プレート + プレート下面〜PCB 上面の隙間 1.0mm(上面〜PCB 2.2mm。Choc V1/V2 向け)。
-  Choc のツメの掛かりは V1 1.30 / V2 1.65(Kailh 図面)で、1.2mm 板では V2 のツメが掛からない(2026-10-02)。
+  Choc のツメの掛かりは V1 1.30 / V2 1.65(Kailh 図面。一般公差 ±0.10、未実測)で、1.2mm 板では V2 のツメが掛からない(2026-10-02)。
   スイッチ別の規定値は README の「スイッチ別のプレート厚・取付高さ」表(TTC KS32 は図面未入手で不明)。
   Gateron LP は図面上フランジ下〜ハウジング底 2.50・プレート厚 1.20 なので隙間 1.3mm(上面〜PCB 2.5mm)の別スタック(2026-09-27 確認)。
   MX は Cherry 規定 1.5mm/5.0mm でこの構成では組めない(別スタック)
