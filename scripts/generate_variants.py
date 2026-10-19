@@ -33,7 +33,9 @@ variants-hybrid-pcb-only.pretty(MX×Choc ハイブリッド。PCB 互換のみ�
    プレートカット線は User.5)
 - Gateron LP ベースには Gateron 純正プレートマウントスタビ(KS-57 Holder Module)用の
   `_GateronLPStab` 版も生成(2u = KS-57B210T / 6.25u = KS-57B623T。PCB 側の要素は無く
-  プレートカット線 User.5 のみ。開口形状は 2 サイズ共通で違いはステム間隔だけ)
+  プレートカット線 User.5 のみ。開口形状は 2 サイズ共通で違いはステム間隔だけ。
+  プレート下の本体は PCB 逃げ穴が要るため、本体がソケットパッドと干渉する
+  ホットスワップ系の横向き 2u は生成しない)
 - 裏面 SMD ダイオード付きの `_Diode` 版も生成する
   (SOD-123 / SOD-323 / MiniMELF 兼用の手半田ロングパッド。パッド 3=A / 4=K。
    ベース(コートヤードなし)への `_Diode` 版は single/double.pretty 内に
@@ -145,6 +147,10 @@ GATERON_LP_PART_NO = {2.0: "KS-57B210T", 6.25: "KS-57B623T"}   # descr 用の型
 GATERON_LP_PLATE_BODY = (6.0, 12.5, 0.6)   # (幅, 高さ, 中心y) ハウジング開口
 GATERON_LP_PLATE_TAB = (1.7, 1.7, 7.2)     # 下辺中央の突起(深さ 1.2、ハウジングと 0.5 重ねる)
 GATERON_LP_PLATE_WIRE = (2.5, 1.4)         # ワイヤー溝 (高さ, 中心y)。幅はステム間隔
+# プレート下の本体 (幅, 高さ, 中心y)。製品図面の 5.85 x 12.40、中心 y は 400dpi 実測。
+# プレート上面から 4.45 下まで出て PCB 逃げ穴が要る(未実装)ので、
+# 逃げ穴がソケットパッドを削るベースでは生成しない(干渉チェック用)
+GATERON_LP_BODY = (5.85, 12.4, 0.58)
 # (kind, layer, width, coords) kind: line=(x1,y1,x2,y2) / arc=(sx,sy,mx,my,ex,ey)
 CHOC_STAB_SEGMENTS = [
     # --- PCB スロット (Edge.Cuts): 本体 5.3x5.5 / ワイヤー 4.0x3.5, 角 R0.5
@@ -424,6 +430,14 @@ def choc_v2_stab_slot_rects(size, vertical=False):
     hw, hh = CHOC_V2_STAB_HALF
     x = CHOC_V2_STAB_X[size]
     rects = [(m * x - hw, -hh, m * x + hw, hh) for m in (1, -1)]
+    return [rot_rect(r) for r in rects] if vertical else rects
+
+
+def gateron_lp_body_rects(size, vertical=False):
+    """Gateron LP 純正スタビのプレート下本体の矩形 (x1, y1, x2, y2) を返す(干渉チェック用)。"""
+    w, h, cy = GATERON_LP_BODY
+    x = GATERON_LP_STAB_X[size]
+    rects = [(m * x - w / 2, cy - h / 2, m * x + w / 2, cy + h / 2) for m in (1, -1)]
     return [rot_rect(r) for r in rects] if vertical else rects
 
 
@@ -719,7 +733,8 @@ def make_variant(base_text, base_name, suffix, size, stab, diode=None,
         if (("Choc_V2" in base_name or "V1V2" in base_name
              or "Gateron" in base_name) and size in CHOC_V2_STAB_X):
             cap += " For Kailh Choc V2 stabilizers use the _ChocV2Stab variant."
-        if "Gateron" in base_name and size in GATERON_LP_STAB_X:
+        if ("Gateron" in base_name and size in GATERON_LP_STAB_X
+                and not slot_collides(s, gateron_lp_body_rects(size, vertical))):
             cap += (" For Gateron Low Profile plate-mount stabilizers use the"
                     " _GateronLPStab variant.")
     if diode:
@@ -828,8 +843,14 @@ def main():
                 else:
                     variants.append((f"{w:.2f}u_ChocV2Stab", w, "chocv2"))
             if is_gateron and w in GATERON_LP_STAB_X:
-                # プレートマウント専用で PCB 要素が無いため干渉チェック不要
-                variants.append((f"{w:.2f}u_GateronLPStab", w, "gateronlp"))
+                # PCB 要素は未実装だが本体の逃げ穴が要るため、ホットスワップ系の
+                # 2u はソケットパッドと干渉する(逃げ穴がパッドを削ってしまう)
+                hit = slot_collides(base_text, gateron_lp_body_rects(w))
+                if hit:
+                    print(f"  SKIP {base_name}_{w:.2f}u_GateronLPStab: "
+                          f"スタビ本体がパッド{hit[0]}と干渉({hit[1]:.2f}mm)")
+                else:
+                    variants.append((f"{w:.2f}u_GateronLPStab", w, "gateronlp"))
         variants.append(("ISOEnter", "ISOEnter", None))
         variants.append(("ISOEnterFlip", "ISOEnterFlip", None))
         if is_mx:
@@ -860,7 +881,12 @@ def main():
                 else:
                     variants.append((f"{sfx}_ChocV2Stab", h, "chocv2", True))
             if is_gateron and h in GATERON_LP_STAB_X:
-                variants.append((f"{sfx}_GateronLPStab", h, "gateronlp", True))
+                hit = slot_collides(base_text, gateron_lp_body_rects(h, True))
+                if hit:
+                    print(f"  SKIP {base_name}_{sfx}_GateronLPStab: "
+                          f"スタビ本体がパッド{hit[0]}と干渉({hit[1]:.2f}mm)")
+                else:
+                    variants.append((f"{sfx}_GateronLPStab", h, "gateronlp", True))
 
         for suffix, size, stab, vert in variants:
             for dio in ((None, diode) if diode else (None,)):

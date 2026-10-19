@@ -25,7 +25,7 @@ Choc V2 スタビのプレート干渉図 `chocv2-stab-plate-cantilever.svg`、G
 - **`variants-*.pretty/`(生成物、スイッチ種別で4ライブラリ)**: キーキャップサイズ別バリアント。
   variants-mx(MX純系464) / variants-choc(Choc純系464。Choc V1V2 ハイブリッド含む=プレート共用可) /
   variants-hybrid-pcb-only(MX×Chocハイブリッド134。PCB互換のみ、旧 variants-mx-choc) /
-  variants-gateron(Gateron LP 134)。`--all` 時は 1546。
+  variants-gateron(Gateron LP 130)。`--all` 時は 1542。
   再生成は `python3 scripts/generate_variants.py`(全削除→再生成。手編集禁止、直すのはスクリプト側)
   - コートヤード = キーキャップ範囲。外縁は公称(w×19.05×19.05)より各辺0.025mm控え
     (1u なら中心線±9.475・線幅0.05で外縁19.00mm角)。19.05mmピッチの隣接キーと誤DRCしないため
@@ -50,7 +50,7 @@ Choc V2 スタビのプレート干渉図 `chocv2-stab-plate-cantilever.svg`、G
     開口下辺と溝の間に 0.6mm の帯しか残らない(旧 R1.0 リリーフでは帯が島になっていた。現行 R0.6 では
     両端でつながるが細い。図 `docs/chocv2-stab-plate-cantilever.svg`、詳細は README)
   - `_GateronLPStab` = Gateron LP 純正プレートマウントスタビ(2U=KS-57B210T / 6.25U=KS-57B623T)用
-    (Gateron ベース3種×2.00u/2.00u_Vertical/6.25u)。
+    (Gateron ベース3種×2.00u/2.00u_Vertical/6.25u。横向き 2.00u は THT のみで、ホットスワップ系 2 種は下記の干渉で生成しない)。
     **現状 PCB 側要素なし、User.5 のプレートカット線のみ**(ハウジング 6.00×12.50 中心(±x,+0.6)+下辺突起 1.7 幅+
     ワイヤー溝 全幅×2.5 中心y=+1.4、重なる外形は union)。**開口形状は 2U/6.25U 共通で違いはステム間隔だけ**
     (x=±12.0 / ±50.0。製品図面の実寸 24.00±0.15 / 100.00±0.15)。開口数値は Gateron 仕様書の推奨開口図、
@@ -60,7 +60,8 @@ Choc V2 スタビのプレート干渉図 `chocv2-stab-plate-cantilever.svg`、G
     スロット案(本体 6.4×13.0 中心+0.6 / 曲げ部 y+6.5〜+10.0 / 横棒 y≈+8.1)と、製品図面の横棒位置(y≈+8.1)が
     プレート溝(y=+1.4)と食い違う件は README に記載。横棒位置は実物確認待ち。
     横向き 2u のホットスワップ系(HotSwap_PTH/THT)はパッド1 (−8.075,4.7) がプレート下の本体と 0.25mm 重なり、
-    逃げ穴を開けるとパッドを削る(THT・6.25u・Vertical は干渉なし。2026-10-19)。
+    逃げ穴を開けるとパッドを削るので生成しない(本体矩形 `GATERON_LP_BODY` とパッドの干渉チェックで自動スキップ。
+    THT・6.25u・Vertical は干渉なしで生成。2026-10-19)。
     Choc V2 への流用は図面上は当たらないが未実物確認(ストロークが V2 で +0.2mm・十字の腕幅差で約 0.2mm のガタ・
     プレート厚 1.20 前提・Choc の 2.2mm スタックでは本体が PCB 上面から 2.25mm 下まで出る。Choc ベースには未生成。README「Choc V2 への流用」)。
     生成物の descr の "clearance ... not verified" は未更新(直すなら generate_variants.py の文言を変えて再生成)。
