@@ -10,7 +10,7 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
 
 | 組むスイッチ | 登録するライブラリ | 使うフットプリント（1u） | プレートに書き出す層 | 2u 以上のキー |
 |---|---|---|---|---|
-| **Kailh Choc（V1 でも V2 でも）** | `variants-choc.pretty` | `SW_Kailh_Choc_V1V2_HotSwap_Hybrid_1.00u` | `User.3`（13.95。V1/V2 でプレート共用） | `..._2.00u` を**スタビ無し**で使う（Choc のスタビは入手性・FR4 プレート強度とも難あり）。2u は親指キーに限るか 1.5u にすると傾きが目立たない（下記「スタビ無しの 2u」） |
+| **Kailh Choc（V1 でも V2 でも）** | `variants-choc.pretty` | `SW_Kailh_Choc_V1V2_HotSwap_Hybrid_1.00u` | `User.3`（13.95。V1/V2 でプレート共用） | `..._2.00u` を**スタビ無し**で使う（Choc のスタビは入手性・FR4 プレート強度とも難あり）。2u は親指キーに限るか 1.5u にすると傾きが目立たない（下記「スタビ無しの 2u」）。Enter などスタビが要る 2u は「Choc V2 で 2u（Enter など）を使うときのスタビの備え」 |
 | **Cherry MX 互換（通常の高さ）** | `variants-mx.pretty` | `SW_MX_HotSwap_PTH_1.00u` | `User.2`（14.00） | `..._2.00u_MXPCBStab`（Cherry PCB マウントスタビ。プレートマウントでも可） |
 | **Gateron Low Profile 2.0（KS-33）** | `variants-gateron.pretty` | `SW_Gateron_LowProfile_HotSwap_PTH_1.00u` | `User.2`（14.00） | **FR4 プレートならスタビ無し**（`..._2.00u`）。`..._6.25u_GateronLPStab` / `..._2.00u_Vertical_GateronLPStab`（Gateron 純正プレートマウントスタビ）は**金属プレート前提**（FR4 では取り外し時に開口脇の柱が折れ得る。下記警告）。PCB 逃げ穴が必要（未実装）。横向きの `2.00u_GateronLPStab` は逃げ穴がホットスワップソケットのパッドに当たるため `SW_Gateron_LowProfile_THT` にしか無い |
 
@@ -466,6 +466,30 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
   スクリプトで機械チェック済み。
   プレビュー画像はベース 33 + `_Diode` ベース 22 のみ
   （バリアントは枚数が膨大なため生成しない）
+
+### Choc V2 で 2u（Enter など）を使うときのスタビの備え（2026-10-19）
+
+Enter など一部の 2u だけスタビ付きにし、他のキーはスタビ無し（1.5u・親指キー。冒頭「スタビ無しの 2u について」）で組む前提。
+Kailh V2 スタビは在庫を確認できるのが Keebio 1 店だけなので、手に入らなくなる前に手当てしておく。
+
+1. **Kailh V2 スタビを今のうちに買っておく**: 2u 1 キーにスタビ 1 個。組む予定の台数分 + 予備 2〜3 個。
+   [Keebio](https://keeb.io/products/kailh-choc-v2-stabilizers) 単品 $1.99 / 5 個入り $8.99（送料別）
+2. **控えに Gateron LP 純正スタビを数個買い、Choc V2 で試しておく**:
+   [Gateron 公式ストア](https://www.gateron.com/products/gateron-low-profile-plate-mounted-stabilizer) 2U $1.20。
+   図面上は当たらないが実物は未確認（上記「Choc V2 への流用」）。使えれば Kailh V2 スタビが無くなっても Choc V2 を使い続けられる
+   - 試し方: テストプレート `docs/test-plate-150x150.dxf` の「2u: Gateron LP stab」のセル（14.00 開口）に Choc V2 を挿す。
+     PCB が無くてもストロークとキーキャップは確かめられる（1.2mm 板では V2 のツメが掛からないので、キーキャップを外すときはスイッチを押さえる）
+   - 確認点: 静止時にキーキャップの両端が浮かないか / 両端を押してスイッチより先にスタビが底付きしないか
+     （V2 のストロークは KS-33 より 0.2mm 長い）/ キーキャップのスタビ穴でのガタ（スタビの十字の腕幅 1.08、V2 は 1.30）
+3. **Enter のフットプリント**:
+   - 横向き 2u: `SW_Kailh_Choc_V2_THT_2.00u_ChocV2Stab`（V1V2 兼用なら `SW_Kailh_Choc_V1V2_THT_Hybrid_2.00u_ChocV2Stab`）。
+     **ホットスワップ系の横向き 2u にはスタビ版が無い**（V2 スロットがソケットのパッドと干渉）ので、Enter だけ THT ではんだ付けする
+   - 縦向き 2u（テンキーの Enter 型）なら `SW_Kailh_Choc_V1V2_HotSwap_Hybrid_2.00u_Vertical_ChocV2Stab` でホットスワップのまま組める
+   - Gateron LP スタビ用の Choc V2 フットプリントは無い。Choc の 2.2mm 構成ではスタビ本体が PCB 上面から 2.25mm 下まで出るので、
+     後から Gateron に替えるには PCB の逃げ穴が要る。切り替えの可能性を残すなら、Enter の PCB 逃げ穴を両方のスタビが入る形にしておく
+     （Gateron 側のスロット寸法とワイヤー横棒の逃げは未確定。上記「PCB スロット寸法の調査」）
+4. **プレート**: V2 スタビも Gateron スタビも、1.2mm FR4 では開口脇の柱が片持ち梁になる（上記の各警告）。
+   FR4 で組むなら、スイッチを抜くときにプレートをテコにしない
 
 ## ★ このフォーク限定: 裏面 SMD ダイオード付き `_Diode` バリアント（2026-08-31）
 
