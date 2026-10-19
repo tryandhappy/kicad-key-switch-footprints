@@ -30,8 +30,9 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
   実用上は **2u を親指キーに限定する**（キャップ中央付近を押すので傾きが出にくい）か **1.5u にする**
   （支点からの距離が 4.8mm 縮む）のが効く。**FR4 プレートでスタビを使える唯一の経路は
   Choc V1 + Choc V1 スタビ**（`_ChocV1Stab`。ハウジングを PCB スロットに落としワイヤーをプレート下に
-  通すので、プレート開口はスイッチ開口と独立で両端固定の梁が残る。ただし国内在庫は
-  2026-09 時点で遊舎工房 1 店）。Gateron LP / Choc V2 でスタビを使うなら金属プレート
+  通すので、プレート開口はスイッチ開口と独立で両端固定の梁が残る。ただし国内で扱いを確認できたのは
+  [遊舎工房](https://shop.yushakobo.jp/products/a0500st-00-1) 1 店で、2026-10-19 時点は売り切れ・入荷通知の受付のみ）。
+  Gateron LP / Choc V2 でスタビを使うなら金属プレート
 - **`variants-hybrid-pcb-only.pretty`（MX × Choc ハイブリッド）は上級者向け**。1 枚の PCB を
   MX 版と Choc 版で作り分けたい場合にだけ使う。**互換なのは PCB だけ**で、プレート
   （高さ 5.0 vs 2.2mm）・ケース・スタビはスイッチごとに別設計になる。
@@ -309,7 +310,8 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
       下げて一体の開口にすると帯が無くなり加工は確実になるが、スイッチ下辺の保持面が
       無くなる。**いずれにせよ片持ち梁は残る**
     - **推奨**: Choc V2 の 2u はスタビ無しで組む（低背 2u はスタビ無しの実例が多く、
-      V2 スタビは 2026-09 時点で在庫ありが世界 1 店）。スタビを使うなら 1.5mm 前後の
+      V2 スタビの取り扱いを確認できたのは [Keebio](https://keeb.io/products/kailh-choc-v2-stabilizers)（米国）1 店。
+      2026-10-19 時点で在庫あり（単品 $1.99 / 5 個 $8.99）、国内店は未確認）。スタビを使うなら 1.5mm 前後の
       金属プレート（kb-plategen 本来の前提に近い）。FR4 1.2mm で使う場合は試作限定と割り切る。
       この形状は元々 1.5mm 級の金属プレートを想定した設計と考えるのが妥当で、
       ワイヤーがプレートの高さを通る V2 スタビは MX（ワイヤーがプレート下）・
@@ -324,7 +326,9 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
     2.00u / 2.00u_Vertical / 6.25u、`_Diode` 版込みで 18 ファイル）。
     型番は **2U = KS-57B210T / 6.25U = KS-57B623T**。
     図: [`docs/gateron-lp-stab-plate-groove.svg`](docs/gateron-lp-stab-plate-groove.svg)（ワイヤー溝がスイッチ開口を横切る様子）。
-    Gateron 公式ストアで買える純正部品で、対応スイッチは **Gateron LP（KS-33 / KS-27）**。
+    [Gateron 公式ストア](https://www.gateron.com/products/gateron-low-profile-plate-mounted-stabilizer)で買える純正部品で
+    （2026-10-19 時点で在庫あり表示。2U $1.20、選択肢は 2U / 6.25U / 60% セット、サイズ別の在庫は不明。国内店は未確認）、
+    対応スイッチは **Gateron LP（KS-33 / KS-27）**。
     スイッチ側の世代（LP 1.0 / 2.0 / 3.0）でスタビは変わらない。**スタビ自体に V1/V2/V3 の
     世代表記は無い**（黒と Sky＝青の色違いのみ。"Gateron Plate Mounted V2 Stabilizer" は
     MX 通常高さ用の別物）。
