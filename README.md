@@ -467,6 +467,55 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
   プレビュー画像はベース 33 + `_Diode` ベース 22 のみ
   （バリアントは枚数が膨大なため生成しない）
 
+### MX（ノーマルプロファイル）スタビのメーカー間互換性（2026-10-19）
+
+Cherry 型なら、PCB の穴位置・プレート開口・高さはメーカーが違っても共通。違うのは PCB 厚・プレートマウント型の対応板厚・キーキャップ側の公差。
+Costar 型はプレート開口もキーキャップへの付け方も別系統で、Cherry 型と互換性は無い。
+
+| 方式 | PCB | プレート | メーカー間の違い |
+|---|---|---|---|
+| PCB スクリューイン（Durock・TX・C³Equalz・Staebies・GMK など） | Cherry の 2 穴 | 本体が貫通する開口 | PCB 厚（1.6mm 前提） |
+| PCB クリップイン（Cherry など） | 同じ 2 穴 | 同上 | 同上 |
+| プレートマウント（Cherry 型。Cherry・Durock・TX など） | 不要 | Cherry 型開口にはめる | 対応板厚 |
+
+- **ステム間隔**（Cherry データシートの寸法 A）: 2u / 2.25u / 2.75u = 0.94in（23.876）、3u = 38.1、7u = 114.3、8〜10u = 133.35。
+  6.25u = 100 / 6u = 95.25 はデータシートに無く、kiswitch の値（`STAB_X_OFFSET`）
+- **穴**: 片側 2 穴、小 Ø3.048 at y=−6.985 / 大 Ø3.988 at y=+8.255（`STAB_SMALL` / `STAB_LARGE`）。スクリューイン・クリップインとも同じ穴
+- **PCB 厚**: PCB マウントは 1.6mm 用が基本。1.2mm PCB はワッシャーかシムが要る
+  （ai03 のシム 0.4 / 0.6mm、Durock V3 はワッシャー付きで 1.2〜1.6mm、TX AP は 1.2mm 版と 1.6mm 版を別売）
+- **プレート厚**: Cherry の規定は 0.06±0.004in（≈1.52±0.1mm）、スイッチ開口 0.551in（14.0）。
+  PCB マウントは板厚に関係しない。プレートマウントは TX AP が 1.5mm 板用、Durock V3 は 1.2mm 板にも対応。1.6mm FR4 対応を明記した製品は見当たらない
+- **開口**: Cherry 図面の 2u 用開口は腕の幅 0.262in（≈6.65）× 高さ 0.484in（≈12.3）。生成ツールにより 6.75 / 6.80 と幅がばらつく。
+  本リポジトリの `_MXPCBStab` の `User.5` は 6.75×14（kb-plategen "Normal"）で、PCB マウント・プレートマウントの両方に使える。
+  きつい開口ではプレートマウント型が入らないことがあり、TX のトップクリップイン型はプレートの種類ごとに削る箇所を示した互換表を出している
+- **高さ**: MX はスイッチの形でプレート上面＝PCB 上面 + 5.0mm に決まる。PCB マウントは PCB 基準、プレートマウントはプレート上面基準なので、
+  どちらもこの構成ならスイッチのステムと高さが合う。プレート厚は高さに影響せず、ツメの掛かりにだけ効く
+- **ワイヤー溝は不要**: ワイヤーはプレート下面〜PCB の隙間（3.5mm）を通るので、プレートに開けるのはスタビ本体 2 個分の開口だけ。
+  低背スタビとの違い:
+
+  | スタビ | プレートのワイヤー溝 | 理由 |
+  |---|---|---|
+  | MX（Cherry 型） | 不要 | ワイヤーはプレートの下を通る |
+  | Kailh Choc V1（1350） | 不要 | 本体を PCB スロットに落とし、ワイヤーはプレートの下を通る |
+  | Kailh Choc V2 | 必要（幅 1.4、y=+8.28） | 隙間が狭く、ワイヤーがプレートの高さを通る |
+  | Gateron LP 純正 | 必要（推奨開口図では幅 2.5、y=+1.4） | 同上（位置は製品図面と食い違いあり） |
+
+  低背の FR4 プレートでスタビ開口脇の柱が片持ち梁になるのはこの溝のため。MX では柱が両端でつながったまま残る
+- **メーカー差（公差・作り）**: Staebies は GMK の型に合わせた設計で、他社キーキャップでは引っかかることがある /
+  Cherry・GMK のスクリューインは型の作り直しで公差が悪くなったとの指摘 / Durock V1・Everglide はワイヤーが外れやすい /
+  Gateron の Black・Silver スタビは底打ちが早いスイッチ向け。ステムの高さ・ストロークを各社で数値比較した資料は見つからない
+- **本フォークとの関係**: `_MXPCBStab` は Cherry の穴配置なので、どのメーカーの PCB マウントスタビにも使える。
+  ただし想定構成（1.2mm FR4 + 上面〜PCB 2.2mm）では MX スイッチ自体が組めない（1.5mm 板 + 上面〜PCB 5.0mm の別構成）
+- 出典: [Cherry MX データシート](https://github.com/keyboardio/keyswitch_documentation/blob/master/datasheets/Cherry/mx_series.pdf)
+  （Leveling Mechanism Kits / Metal Frame Cutout Dimensions）、
+  [geekhack](https://geekhack.org/index.php?topic=113777.0)（PCB マウントとプレートマウントが同じ開口を使える）、
+  [ai03 StabilizerShims](https://github.com/ai03-2725/StabilizerShims)、[KeebDepot](https://keebdepot.com/guides/stabilizers-101)、
+  [wiki.keyboard.gay](https://wiki.keyboard.gay/STABILIZERS.html)、
+  [Durock Plate Mount V3](https://divinikey.com/products/durock-plate-mount-stabilizers)、
+  [TX AP Plate Mount](https://divinikey.com/products/tx-ap-plate-mount-stabilizers)、
+  [TX AP Top Clip-in](https://divinikey.com/collections/keyboard-accessories-sale/products/tx-ap-stabilizers-top-clip-in)、
+  [Deskthority](https://deskthority.net/viewtopic.php?t=20144)（開口幅のばらつき）
+
 ### Choc V2 で 2u（Enter など）を使うときのスタビの備え（2026-10-19）
 
 Enter など一部の 2u だけスタビ付きにし、他のキーはスタビ無し（1.5u・親指キー。冒頭「スタビ無しの 2u について」）で組む前提。
