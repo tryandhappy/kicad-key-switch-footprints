@@ -728,13 +728,17 @@ def make_variant(base_text, base_name, suffix, size, stab, diode=None,
         cap += " No stabilizer PCB features."
         if "MX" in base_name:
             cap += " Plate-mount MX stabilizers can be used."
-        if "Choc_V1" in base_name and size in CHOC_STAB_X:
+        # 案内するのは実際に生成されるスタビ版だけ(main と同じく base_text で干渉判定。
+        # V1 スロットは縦向きだけ干渉スキップがある)
+        if ("Choc_V1" in base_name and size in CHOC_STAB_X
+                and not (vertical and slot_collides(base_text, choc_stab_slot_rects(size, True)))):
             cap += " For Kailh Choc 1350 (V1) stabilizers use the _ChocV1Stab variant."
         if (("Choc_V2" in base_name or "V1V2" in base_name
-             or "Gateron" in base_name) and size in CHOC_V2_STAB_X):
+             or "Gateron" in base_name) and size in CHOC_V2_STAB_X
+                and not slot_collides(base_text, choc_v2_stab_slot_rects(size, vertical))):
             cap += " For Kailh Choc V2 stabilizers use the _ChocV2Stab variant."
         if ("Gateron" in base_name and size in GATERON_LP_STAB_X
-                and not slot_collides(s, gateron_lp_body_rects(size, vertical))):
+                and not slot_collides(base_text, gateron_lp_body_rects(size, vertical))):
             cap += (" For Gateron Low Profile plate-mount stabilizers use the"
                     " _GateronLPStab variant.")
     if diode:
