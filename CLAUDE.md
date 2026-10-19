@@ -59,6 +59,10 @@ Choc V2 スタビのプレート干渉図 `chocv2-stab-plate-cantilever.svg`、G
     隙間 1.3mm では PCB に当たる。1.6mm PCB に穴を開けても下面から約 0.35mm 出る。穴の平面寸法は未確定(2026-09-27)。
     スロット案(本体 6.4×13.0 中心+0.6 / 曲げ部 y+6.5〜+10.0 / 横棒 y≈+8.1)と、製品図面の横棒位置(y≈+8.1)が
     プレート溝(y=+1.4)と食い違う件は README に記載。横棒位置は実物確認待ち。
+    横向き 2u のホットスワップ系(HotSwap_PTH/THT)はパッド1 (−8.075,4.7) がプレート下の本体と 0.25mm 重なり、
+    逃げ穴を開けるとパッドを削る(THT・6.25u・Vertical は干渉なし。2026-10-19)。
+    Choc V2 への流用は図面上は当たらないが未実物確認(ストロークが V2 で +0.2mm・十字の腕幅差で約 0.2mm のガタ・
+    プレート厚 1.20 前提・Choc の 2.2mm スタックでは本体が PCB 上面から 2.25mm 下まで出る。Choc ベースには未生成。README「Choc V2 への流用」)。
     生成物の descr の "clearance ... not verified" は未更新(直すなら generate_variants.py の文言を変えて再生成)。
     6.25u はワイヤー溝が全幅 100mm のスリットになるので FR4 では特に不利。
     定数 `GATERON_LP_STAB_X` / `GATERON_LP_PART_NO` / `GATERON_LP_PLATE_*`

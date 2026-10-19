@@ -12,7 +12,7 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
 |---|---|---|---|---|
 | **Kailh Choc（V1 でも V2 でも）** | `variants-choc.pretty` | `SW_Kailh_Choc_V1V2_HotSwap_Hybrid_1.00u` | `User.3`（13.95。V1/V2 でプレート共用） | `..._2.00u` を**スタビ無し**で使う（Choc のスタビは入手性・FR4 プレート強度とも難あり）。2u は親指キーに限るか 1.5u にすると傾きが目立たない（下記「スタビ無しの 2u」） |
 | **Cherry MX 互換（通常の高さ）** | `variants-mx.pretty` | `SW_MX_HotSwap_PTH_1.00u` | `User.2`（14.00） | `..._2.00u_MXPCBStab`（Cherry PCB マウントスタビ。プレートマウントでも可） |
-| **Gateron Low Profile 2.0（KS-33）** | `variants-gateron.pretty` | `SW_Gateron_LowProfile_HotSwap_PTH_1.00u` | `User.2`（14.00） | **FR4 プレートならスタビ無し**（`..._2.00u`）。`..._2.00u_GateronLPStab` / `..._6.25u_GateronLPStab`（Gateron 純正プレートマウントスタビ）は**金属プレート前提**（FR4 では取り外し時に開口脇の柱が折れ得る。下記警告） |
+| **Gateron Low Profile 2.0（KS-33）** | `variants-gateron.pretty` | `SW_Gateron_LowProfile_HotSwap_PTH_1.00u` | `User.2`（14.00） | **FR4 プレートならスタビ無し**（`..._2.00u`）。`..._2.00u_GateronLPStab` / `..._6.25u_GateronLPStab`（Gateron 純正プレートマウントスタビ）は**金属プレート前提**（FR4 では取り外し時に開口脇の柱が折れ得る。下記警告）。PCB 逃げ穴が必要（未実装）で、ホットスワップ版の `2.00u` は逃げ穴がソケットのパッドに当たる |
 
 - サイズは `_1.25u` `_1.50u` `_2.00u` … `_ISOEnter` `_2.00u_Vertical` など（一覧は下のバリアント節）。
   裏面ダイオード込みにしたいときは末尾に `_Diode` を付けた版を使う（回路図は `symbols/` の `SW_Key_Diode`）
@@ -333,7 +333,7 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
     世代表記は無い**（黒と Sky＝青の色違いのみ。"Gateron Plate Mounted V2 Stabilizer" は
     MX 通常高さ用の別物）。
     **プレートマウント専用で、現状 PCB 側の要素は無い**（`Edge.Cuts` も NPTH も追加しない。
-    ホットスワップ系ベースにも生成される）。**⚠ ただし実際には PCB に逃げ穴が必要（未実装、下記）**。スタビ用プレートカット線は `User.5`
+    ホットスワップ系ベースにも生成される）。**⚠ ただし実際には PCB に逃げ穴が必要（未実装、下記。横向き 2u のホットスワップ系はパッドと干渉）**。スタビ用プレートカット線は `User.5`
     （ハウジング開口 6.00×12.50 中心 (±12.0, +0.6) + 下辺中央の突起 1.70 幅・深さ 1.2 +
     ワイヤー溝 全幅×2.5 中心 y=+1.4、角 R0.5。3 種の角丸矩形は互いに重なるので
     プレート CAD 側で union する）。寸法出典は Gateron 製品仕様書
@@ -369,6 +369,32 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
       スイッチ開口とつながるが、製品図面の上面図ではワイヤー横棒はフランジ端（y≈+8.1）を通る。
       現行のプレート溝がワイヤー用ではない可能性、または上面図の向きの読み違いの可能性があり、
       **横棒の y 位置と深さは実物確認が必要**
+    - **⚠ 横向き 2u のホットスワップ系はソケットのパッドに当たる（2026-10-19）**:
+      `SW_Gateron_LowProfile_HotSwap_PTH` / `_HotSwap_THT` のパッド 1（(−8.075, 4.7)、2.5×2.55、x=−9.325 まで）が
+      プレート下の本体（内側 x=−9.075）と 0.25mm 重なる（スロット案 ① なら 0.53mm）。
+      逃げ穴を開けるとパッドを削るので、ホットスワップ系の `2.00u_GateronLPStab` はこのままでは組めない。
+      `SW_Gateron_LowProfile_THT`・6.25u（x=±50）・`2.00u_Vertical` は干渉なし
+    **Choc V2 への流用（2026-10-19。図面での検討のみで実物は未確認。Choc V2 ベースには生成していない）**:
+    図面上は当たる箇所が無い。Gateron / Kailh とも互換性の記載は無い。高さはプレート上面基準
+    - スイッチ上部は KS-33 とほぼ同じ形: ステム上端 Choc V2 6.40（図面）/ KS-33 約 6.4（実測）、
+      ハウジング上端 3.30 / 3.35。スタビのアクチュエータ上端は 7.31（ベクタ図面の座標から算出、寸法値の記載なし）で、
+      どちらのステムより高いので常にキーキャップに押し下げられて噛み合う
+    - 横の隙間: プレート上はスイッチのフランジ ±7.5 ↔ スタビのフランジ内側 ±9.0 で 1.5mm、
+      プレート下は下部ハウジング ±6.975 ↔ スタビ本体内側 ±9.075 で 2.1mm、
+      ワイヤー横棒（y≈+8.1、Ø1.0。位置は上記の食い違いあり）↔ 下部ハウジング端 6.975 で 0.6mm（KS-33 と同じ）
+    - △ ストローク: Choc V2 3.2±0.25 / KS-33 3.0±0.2 で、V2 は 0.2mm（最大 0.45mm）長い。
+      スタビのストロークは図面に記載が無く、スタビが先に底付きする可能性がある（作動点は 1.3mm なので入力はされる）
+    - △ 十字: スタビの腕幅 1.25 / 1.08 は KS-33（1.28 / 1.10）に合わせた寸法。Choc V2 は 1.30 / 1.30 なので、
+      V2 用キーキャップでは片方向に約 0.2mm のガタが出る
+    - プレート厚: スタビは 1.20±0.1 前提で、Choc V2 のツメ（1.65）とは両立しない。
+      本フォークの 1.2mm FR4 ならスタビは掛かる（V2 のツメは元々掛からない）
+    - PCB: Choc の上面〜PCB 2.2mm ではスタビ本体が PCB 上面から 2.25mm 下まで出る（Gateron LP スタックの 1.95 より深い）。
+      逃げ穴は必須で、1.6mm PCB なら下面から約 0.65mm 出る
+    - ホットスワップ不可: `SW_Kailh_Choc_V1V2_HotSwap_Hybrid` のパッド (−8.7, 3.8) が本体と 0.93mm 重なる
+      （`_ChocV2Stab` と同じ理由）。`SW_Kailh_Choc_V2_THT` / `SW_Kailh_Choc_V1V2_THT_Hybrid` は干渉なし
+    - 出典: Kailh 図面 [CPG135301D02](https://github.com/keyboardio/keyswitch_documentation/blob/master/datasheets/Kailh/CPG135301D02-2.pdf)、
+      Gateron [KS-33 Red 仕様書](https://cdn.shopify.com/s/files/1/0565/8070/2297/files/SPEC-KS-33H10B050NN-Y24_Rev-2_KS-33_Red_Switch.pdf?v=1679714207)、
+      スタビ図面は上記の KS-57B210T
     **6.25u のワイヤー溝は全幅 100mm × 2.5mm の長いスリットになる**（2u と同じ形状のまま
     間隔だけ広がるため）。溝の上下は x=±50 の外側でしかつながらないので、
     FR4 プレートでは 2u 以上に剛性が落ちる。金属プレート前提で考えること。
@@ -393,8 +419,8 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
 | Cherry MX | ○ | ○ | ✕ | ✕ | ✕ |
 | Cherry MX Low Profile | ✕ ステム高さ不一致 [^mxlp-stab] | ✕ ステム高さ不一致 [^mxlp-stab] | ✕ | ✕ | ✕ |
 | Kailh Choc V1 (PG1350) | ✕ | ✕ | ○ | ✕ | ✕ |
-| Kailh Choc V2 (PG1353) | ✕ | ✕ | ✕ ワイヤー干渉 | ○ ⚠ FR4 1.2mm では柱が片持ち梁（上記警告） | ✕ 情報なし |
-| Gateron Low Profile | ✕ | ✕ | ✕ | ○ KS-33（KS-27 は情報なし）⚠ 同上 | ○ 純正 2U / 6.25U（⚠ PCB 逃げ穴が必要だが未実装。プレート下へ 3.25mm 出る） |
+| Kailh Choc V2 (PG1353) | ✕ | ✕ | ✕ ワイヤー干渉 | ○ ⚠ FR4 1.2mm では柱が片持ち梁（上記警告） | △ 図面上は当たらない（ストローク・キーキャップの嵌合は未確認、PCB 逃げ穴必須、THT のみ、未生成。上記「Choc V2 への流用」） |
+| Gateron Low Profile | ✕ | ✕ | ✕ | ○ KS-33（KS-27 は情報なし）⚠ 同上 | ○ 純正 2U / 6.25U（⚠ PCB 逃げ穴が必要だが未実装。プレート下へ 3.25mm 出る。横向き 2u のホットスワップ系はパッドに当たる） |
 | Hybrid（MX × Choc） | 実際に載せるスイッチの行に従う | 同左 | 同左 | 同左 | ✕（Gateron ベースのみ生成） |
 
 - 「プレートマウント」と言っても MX 用と Choc 用のスタビは別部品で互換性はない
