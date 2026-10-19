@@ -283,6 +283,9 @@ This is a [KiCad](https://www.kicad.org/) footprint library of mechanical keyboa
   - **Kailh Choc V2 スタビ（CPG1353G24D01）用 → `_ChocV2Stab` 版**（2.00u のみ =
     Kailh の製造を確認できたサイズ）。対応スイッチは **Choc V2 / Gateron KS-33**
     で、**Choc V1 とは非互換**（Keebio 商品ページ準拠）。
+    **購入先**: [Keebio](https://keeb.io/products/kailh-choc-v2-stabilizers)（米国）、単品 $1.99 / 5 個入り $8.99
+    （2026-10-19 時点で在庫あり。在庫を確認できたのはこの 1 店のみ。送料別。
+    「Kailh Choc stabilizer」とだけ書いた他店の商品は大半が V1（1350）用）。
     **PCB の矩形スロット切り欠き 2 個（`Edge.Cuts`、6.5×9.5mm、中心 x=±12.0）+
     プレート必須**。スタビ用プレートカット線は `User.5`（本体 5.95×7.95 +
     突出 4.55×6.25 + ワイヤー溝 全幅×1.4mm、角 R0.5、kb-plategen 準拠。
